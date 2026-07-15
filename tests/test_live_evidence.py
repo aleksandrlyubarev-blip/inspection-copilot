@@ -10,7 +10,6 @@ from inspection_copilot.domain import (
     InspectionRequest,
     ProviderOutcome,
     ProviderStatus,
-    ReviewReason,
 )
 from inspection_copilot.live_evidence import (
     MAX_LIVE_EVIDENCE_BYTES,
@@ -20,17 +19,20 @@ from inspection_copilot.live_evidence import (
     load_live_evidence,
     write_live_evidence,
 )
-from inspection_copilot.service import Inspector, run_inspection
+from inspection_copilot.service import Inspector, provider_review_reason, run_inspection
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
-class TimeoutInspector(Inspector):
+class FailureInspector(Inspector):
     model = "gpt-5.6"
+
+    def __init__(self, status: ProviderStatus) -> None:
+        self._status = status
 
     def inspect(self, request: InspectionRequest) -> ProviderOutcome:
         return ProviderOutcome(
-            status=ProviderStatus.TIMEOUT,
+            status=self._status,
             assessment=None,
             requested_model=self.model,
             effective_model=None,
@@ -123,20 +125,32 @@ def test_record_id_tampering_is_rejected() -> None:
         LiveEvidenceRecord.model_validate(payload)
 
 
-def test_provider_failure_requires_matching_fail_closed_reason() -> None:
+@pytest.mark.parametrize(
+    "status",
+    [
+        ProviderStatus.TIMEOUT,
+        ProviderStatus.RATE_LIMITED,
+        ProviderStatus.UNAVAILABLE,
+        ProviderStatus.REFUSAL,
+        ProviderStatus.INVALID_OUTPUT,
+    ],
+)
+def test_provider_failure_requires_matching_fail_closed_reason(
+    status: ProviderStatus,
+) -> None:
     result = run_inspection(
         load_demo_request(REPO_ROOT),
-        provider=TimeoutInspector(),
+        provider=FailureInspector(status),
     )
 
     record = build_live_evidence(
         result,
-        provider_status=ProviderStatus.TIMEOUT,
+        provider_status=status,
         recorded_at=datetime(2026, 7, 15, 12, 30, tzinfo=UTC),
     )
 
-    assert record.provider_status is ProviderStatus.TIMEOUT
-    assert ReviewReason.PROVIDER_TIMEOUT in record.review_reasons
+    assert record.provider_status is status
+    assert provider_review_reason(status) in record.review_reasons
     assert record.effective_model is None
 
     with pytest.raises(ValidationError, match="provider status"):
@@ -145,6 +159,18 @@ def test_provider_failure_requires_matching_fail_closed_reason() -> None:
             provider_status=ProviderStatus.SUCCESS,
             recorded_at=datetime(2026, 7, 15, 12, 30, tzinfo=UTC),
         )
+
+
+@pytest.mark.parametrize(
+    "field",
+    ["requested_model", "effective_model", "prompt_version", "policy_version"],
+)
+def test_identifier_metadata_rejects_free_text(field: str) -> None:
+    payload = _record().model_dump()
+    payload[field] = "private customer note with spaces"
+
+    with pytest.raises(ValidationError, match=field):
+        LiveEvidenceRecord.model_validate(payload)
 
 
 def _record(*, minute: int = 30) -> LiveEvidenceRecord:

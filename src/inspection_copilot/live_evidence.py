@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from hashlib import sha256
 from pathlib import Path
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 
 from pydantic import Field, field_validator, model_validator
 
@@ -23,6 +23,14 @@ from inspection_copilot.domain import (
 from inspection_copilot.service import provider_review_reason
 
 MAX_LIVE_EVIDENCE_BYTES = 64 * 1024
+Identifier = Annotated[
+    str,
+    Field(
+        min_length=1,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$",
+    ),
+]
 
 
 class LiveEvidenceWriteStatus(StrEnum):
@@ -44,11 +52,11 @@ class LiveEvidenceRecord(StrictModel):
     final_decision: Decision
     evidence_complete: bool
     review_reasons: list[ReviewReason]
-    requested_model: str = Field(min_length=1)
-    effective_model: str | None
+    requested_model: Identifier
+    effective_model: Identifier | None
     result_schema_version: Literal["1.0"]
-    prompt_version: str = Field(min_length=1)
-    policy_version: str = Field(min_length=1)
+    prompt_version: Identifier
+    policy_version: Identifier
     sop_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     image_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
 

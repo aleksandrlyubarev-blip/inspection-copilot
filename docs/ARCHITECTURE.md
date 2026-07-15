@@ -99,6 +99,25 @@ of concurrent update safety. Fixture construction lives in the CLI adapter, not
 the provider-neutral persistence module. The CLI rebuilds the complete two-entry
 offline evidence file rather than incrementally merging unknown data.
 
+## Live validation evidence boundary
+
+`LiveEvidenceRecord` is a separate single-smoke contract, not the deterministic
+offline ledger. It stores a content-derived record ID, UTC whole-second
+timestamp, SHA-256 case/SOP/image fingerprints, provider status, decision route,
+requested/effective model, and schema/prompt/policy versions. Provider failures
+must match their typed fail-closed review reason.
+
+The writer is limited to 64 KiB and publishes a same-directory fsynced temporary
+file through an atomic no-clobber hard link. Exact replay does not touch the
+file; different existing evidence is a conflict. This prevents an accidental
+second smoke or race from overwriting the first record. The contract does not
+authorize an API request and no live evidence exists until the separately
+approved smoke succeeds or returns a typed provider failure.
+
+The SHA-256 case fingerprint is not an anonymization guarantee. The MVP accepts
+only repository-owned synthetic cases, and identifier-like metadata is restricted
+to a bounded identifier alphabet rather than arbitrary free text.
+
 ## UI boundary
 
 Streamlit renders the repository-owned image, automatic verdict, confidence,

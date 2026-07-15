@@ -2,8 +2,8 @@
 
 ## Current goal
 
-Complete the first five governance and implementation steps for a standalone
-Inspection Copilot Build Week project.
+Prepare the strict sanitized live-evidence contract before requesting approval
+for exactly one cost-bounded GPT-5.6 smoke.
 
 ## Decisions
 
@@ -111,14 +111,20 @@ Inspection Copilot Build Week project.
   committed ledger; Ruff, formatting, strict Mypy, all 57 tests, `pip check`, and
   `git diff --check` pass. Review replaced raw case IDs with SHA-256 fingerprints
   and separated fixture CLI orchestration from provider-neutral persistence.
-- Live-evidence contract gate: 10 focused tests cover the sanitized schema,
+- Live-evidence contract gate: 18 focused tests cover the sanitized schema,
   timestamp normalization, tamper/provider-state checks, exact replay, conflict,
-  size/parent bounds, atomic publish failure cleanup, and strict read-back.
+  identifier-only metadata, size/parent bounds, atomic publish failure cleanup,
+  and strict read-back across all provider failure statuses.
+- Goal 1 final gate: Ruff lint/format, strict Mypy across 19 source files, all
+  75 tests, `pip check`, and `git diff --check` pass. Adversarial self-review
+  tightened all model/workflow metadata to identifier-only values and expanded
+  exact failure-reason coverage to every non-success provider status. No live
+  request or live-evidence artifact was produced.
 
 ## Next steps
 
 1. Complete Devpost join after the user login takeover.
 2. Run a separately authorized, cost-bounded live model smoke.
-3. Append sanitized live evidence only after that smoke and with an explicit
-   timestamp policy.
+3. Persist the single sanitized live-evidence record only through the prepared
+   no-clobber writer after that smoke.
 4. Expose the live result in the UI only after the CLI smoke is validated.

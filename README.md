@@ -75,6 +75,17 @@ The default CLI and UI remain credential-free fixture flows. No live model call
 is performed by installation or tests; a cost-bounded live smoke remains a
 separate approval gate.
 
+The sanitized evidence contract for that future smoke is implemented, but no
+live-evidence file is committed or implied. It permits only a UTC timestamp,
+content-derived record/case IDs, provider and decision routing fields, model and
+workflow versions, and SOP/image fingerprints. It excludes raw case IDs, images,
+SOP bodies, model/assessment free text, response IDs, usage, and credentials.
+Exact replay is a byte-identical no-op; different evidence cannot replace the
+first atomically published record.
+
+The case fingerprint is pseudonymous routing evidence, not anonymization; real
+customer identifiers remain outside the MVP and must not be supplied.
+
 The CLI exposes the live path only through two simultaneous opt-ins:
 
 ```bash

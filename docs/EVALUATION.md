@@ -46,9 +46,14 @@ workflow evidence, not model-accuracy evidence.
 ## Live evidence boundary
 
 Every inspection result now carries sanitized deterministic provenance: model,
-prompt/policy/schema versions, and SOP/image hashes. A later, separately
-authorized live smoke may persist those fields with the structured decision,
-policy outcome, and a timezone-aware timestamp. It must not store the raw image,
-SOP body, free-form response, response ID, usage details, or credentials. One
-live result will validate the integration boundary; it will still not establish
-manufacturing accuracy.
+prompt/policy/schema versions, and SOP/image hashes. The prepared
+`LiveEvidenceRecord` adds provider status, decision routing, a SHA-256 case
+fingerprint, and a timezone-aware timestamp normalized to UTC whole seconds.
+
+A later, separately authorized smoke may create exactly one sanitized
+`evidence/live_validation_evidence.json`. The writer will not overwrite a
+different existing record and the smoke must not retry after auth, rate-limit,
+timeout, refusal, or schema failure. It must not store the raw case ID, image,
+SOP body, free-form response/assessment, response ID, usage details, or
+credentials. One live result validates only the integration boundary; it does
+not establish manufacturing accuracy.
