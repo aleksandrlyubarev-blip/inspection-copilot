@@ -113,19 +113,41 @@ def main(
         action="store_true",
         help="authorize one OpenAI API request that may incur cost",
     )
+    parser.add_argument(
+        "--live-evidence-path",
+        type=Path,
+        help="no-clobber live evidence path; used only with the OpenAI provider",
+    )
     args = parser.parse_args(argv)
 
     if args.provider is DemoProvider.OPENAI:
         if not args.confirm_live_request:
             parser.error("--provider openai requires --confirm-live-request")
-        request = load_demo_request(args.repo_root, scenario=args.scenario)
+        from inspection_copilot.live_smoke import (
+            DEFAULT_LIVE_EVIDENCE_RELATIVE_PATH,
+            run_live_smoke,
+        )
+
+        evidence_path = (
+            args.live_evidence_path or args.repo_root / DEFAULT_LIVE_EVIDENCE_RELATIVE_PATH
+        )
         try:
-            provider = live_provider_factory(image_root=_demo_directory(args.repo_root))
+            receipt = run_live_smoke(
+                repo_root=args.repo_root,
+                evidence_path=evidence_path,
+                live_provider_factory=live_provider_factory,
+                scenario=args.scenario,
+            )
         except OpenAIError:
             parser.error("Live provider unavailable; verify OPENAI_API_KEY")
-        result = run_inspection(request, provider=provider)
-    else:
-        result = run_demo(args.repo_root, scenario=args.scenario)
+        except (FileExistsError, FileNotFoundError) as exc:
+            parser.error(str(exc))
+        except Exception:
+            parser.error("Live smoke stopped; inspect the reservation before any retry")
+        print(receipt.model_dump_json(indent=2))
+        return
+
+    result = run_demo(args.repo_root, scenario=args.scenario)
     print(result.model_dump_json(indent=2))
 
 

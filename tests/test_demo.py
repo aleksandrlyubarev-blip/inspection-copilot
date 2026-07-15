@@ -10,6 +10,8 @@ from openai import OpenAIError
 
 from inspection_copilot.demo import DemoScenario, load_demo_request, main, run_demo
 from inspection_copilot.domain import Decision, InspectionResult
+from inspection_copilot.live_evidence import load_live_evidence
+from inspection_copilot.live_smoke import LiveSmokeReceipt, live_smoke_marker_path
 from inspection_copilot.service import FixtureInspector
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -108,7 +110,11 @@ def test_live_cli_requires_explicit_confirmation(capsys: Any) -> None:
     assert "--confirm-live-request" in capsys.readouterr().err
 
 
-def test_confirmed_live_cli_builds_provider_once(capsys: Any) -> None:
+def test_confirmed_live_cli_routes_through_one_request_runner(
+    tmp_path: Path,
+    capsys: Any,
+) -> None:
+    evidence_path = tmp_path / "live_validation_evidence.json"
     image_roots: list[Path] = []
     inspected_cases: list[str] = []
 
@@ -129,17 +135,26 @@ def test_confirmed_live_cli_builds_provider_once(capsys: Any) -> None:
             "--provider",
             "openai",
             "--confirm-live-request",
+            "--live-evidence-path",
+            str(evidence_path),
         ],
         live_provider_factory=fixture_factory,
     )
 
     assert image_roots == [(REPO_ROOT / "examples" / "synthetic").resolve()]
     assert inspected_cases == ["synthetic-bridge-001"]
-    result = InspectionResult.model_validate_json(capsys.readouterr().out)
-    assert result.final_decision is Decision.FAIL
+    receipt = LiveSmokeReceipt.model_validate_json(capsys.readouterr().out)
+    assert receipt.final_decision is Decision.FAIL
+    assert load_live_evidence(evidence_path).record_id == receipt.record_id
+    assert not live_smoke_marker_path(evidence_path).exists()
 
 
-def test_live_cli_sanitizes_provider_construction_error(capsys: Any) -> None:
+def test_live_cli_sanitizes_provider_construction_error(
+    tmp_path: Path,
+    capsys: Any,
+) -> None:
+    evidence_path = tmp_path / "live_validation_evidence.json"
+
     def unavailable_factory(*, image_root: Path) -> FixtureInspector:
         raise OpenAIError(f"private credential detail for {image_root}")
 
@@ -151,6 +166,8 @@ def test_live_cli_sanitizes_provider_construction_error(capsys: Any) -> None:
                 "--provider",
                 "openai",
                 "--confirm-live-request",
+                "--live-evidence-path",
+                str(evidence_path),
             ],
             live_provider_factory=unavailable_factory,
         )
@@ -159,3 +176,5 @@ def test_live_cli_sanitizes_provider_construction_error(capsys: Any) -> None:
     assert error.value.code == 2
     assert "Live provider unavailable; verify OPENAI_API_KEY" in stderr
     assert "private credential detail" not in stderr
+    assert not evidence_path.exists()
+    assert not live_smoke_marker_path(evidence_path).exists()
