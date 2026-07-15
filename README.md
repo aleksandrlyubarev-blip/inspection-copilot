@@ -35,6 +35,15 @@ the deterministic demo image with:
 python scripts/generate_synthetic_demo.py
 ```
 
+Run the local inspection workspace:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+The screen keeps the fixture verdict, cited SOP evidence, and human review as
+separate records. Human review is session-local in this MVP.
+
 ## Local quality gate
 
 ```bash
@@ -51,6 +60,11 @@ pytest -q
 - [Responses API](https://developers.openai.com/api/docs/api-reference/responses)
 - [Images and vision](https://developers.openai.com/api/docs/guides/images-vision)
 - [OpenAI Build Week](https://openai.devpost.com/)
+
+## Architecture and external review
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Grok red-team packet](docs/GROK_REVIEW_PACKET.md)
 
 ## License
 

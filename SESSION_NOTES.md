@@ -23,6 +23,9 @@ Inspection Copilot Build Week project.
   deterministic fail-closed reasons are implemented from scratch.
 - Offline vertical slice is green: synthetic SOP/case/assessment/PNG flow runs
   through an injected fixture provider and emits a schema-valid JSON verdict.
+- Web vertical slice is green: the Streamlit workspace presents the image,
+  automatic verdict, evidence/SOP link, and rationale-gated human review.
+- Public architecture and a non-coding Grok red-team packet are ready.
 
 ## Verification
 
@@ -35,9 +38,13 @@ Inspection Copilot Build Week project.
 - Offline vertical gate: 3 focused tests and 13 full tests pass; the CLI JSON is
   valid, `pip check` passes, and regenerated PNG SHA-256 remains
   `46276da8d0052df523e3af09b01cdfc7c1b42b2fa1cea4be4c580ec64d70bdca`.
+- Web vertical gate: 3 Streamlit AppTests and 16 full tests pass. A localhost
+  browser smoke confirmed the verdict/evidence screen and recorded a separate
+  human review with rationale.
 
 ## Next steps
 
-1. Commit and publish the deterministic offline vertical slice.
-2. Add the local web experience and browser smoke.
-3. Add the bounded GPT-5.6 request contract behind the provider interface.
+1. Commit and publish the web vertical slice and review packet.
+2. Run the Grok red-team packet against only public repository materials.
+3. Triage findings and implement accepted behavior changes through TDD.
+4. Add the bounded GPT-5.6 request contract behind the provider interface.
