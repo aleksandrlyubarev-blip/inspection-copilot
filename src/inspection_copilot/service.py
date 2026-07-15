@@ -60,7 +60,7 @@ def run_inspection(
     outcome = provider.inspect(request)
     if outcome.assessment is None:
         assessment = _provider_failure_assessment()
-        additional_reasons = [_PROVIDER_REVIEW_REASONS[outcome.status]]
+        additional_reasons = [provider_review_reason(outcome.status)]
     else:
         assessment = outcome.assessment
         additional_reasons = []
@@ -70,6 +70,12 @@ def run_inspection(
         provenance=_build_provenance(request, outcome),
         additional_review_reasons=additional_reasons,
     )
+
+
+def provider_review_reason(status: ProviderStatus) -> ReviewReason:
+    if status is ProviderStatus.SUCCESS:
+        raise ValueError("success provider status has no failure review reason")
+    return _PROVIDER_REVIEW_REASONS[status]
 
 
 def _build_provenance(
@@ -97,4 +103,10 @@ def _provider_failure_assessment() -> Assessment:
     )
 
 
-__all__ = ["FIXTURE_PROMPT_VERSION", "FixtureInspector", "Inspector", "run_inspection"]
+__all__ = [
+    "FIXTURE_PROMPT_VERSION",
+    "FixtureInspector",
+    "Inspector",
+    "provider_review_reason",
+    "run_inspection",
+]

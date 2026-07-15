@@ -56,6 +56,10 @@ Inspection Copilot Build Week project.
   two-entry fixture ledger at an explicit output path. The committed artifact is
   strict-schema checked and contains no raw case IDs or assessment/evidence free
   text. Fixture orchestration is separated from generic ledger persistence.
+- A strict `LiveEvidenceRecord` contract is ready for a future authorized smoke.
+  It records only provider/result routing metadata, UTC time, and fingerprints;
+  exact replay is a byte-identical no-op and different evidence cannot overwrite
+  the first atomically published record.
 
 ## Verification
 
@@ -107,6 +111,9 @@ Inspection Copilot Build Week project.
   committed ledger; Ruff, formatting, strict Mypy, all 57 tests, `pip check`, and
   `git diff --check` pass. Review replaced raw case IDs with SHA-256 fingerprints
   and separated fixture CLI orchestration from provider-neutral persistence.
+- Live-evidence contract gate: 10 focused tests cover the sanitized schema,
+  timestamp normalization, tamper/provider-state checks, exact replay, conflict,
+  size/parent bounds, atomic publish failure cleanup, and strict read-back.
 
 ## Next steps
 
