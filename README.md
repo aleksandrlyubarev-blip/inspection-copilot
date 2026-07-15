@@ -69,6 +69,19 @@ The default CLI and UI remain credential-free fixture flows. No live model call
 is performed by installation or tests; a cost-bounded live smoke remains a
 separate approval gate.
 
+The CLI exposes the live path only through two simultaneous opt-ins:
+
+```bash
+inspection-copilot-demo \
+  --repo-root . \
+  --provider openai \
+  --confirm-live-request
+```
+
+This command requires `OPENAI_API_KEY` in the process environment and performs
+one API request for the selected synthetic scenario. Do not run it merely to
+verify installation; use the fixture commands above for credential-free checks.
+
 ## Local quality gate
 
 ```bash

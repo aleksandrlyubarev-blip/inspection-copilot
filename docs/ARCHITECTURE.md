@@ -56,9 +56,11 @@ timeout, and a 2,000-token output limit. It validates local image containment,
 format, and size before sending a request. Model/API/schema failures produce a
 sanitized `needs_review`, not a fallback automatic verdict.
 
-The adapter is not selected by the default CLI or UI yet, and no live request is
-part of the test suite. The exact serialized HTTP payload is verified through a
-local mock transport.
+The default CLI and UI do not select the adapter, and no live request is part of
+the test suite. The CLI requires both `--provider openai` and
+`--confirm-live-request` before it constructs the client; the selected scenario
+then makes exactly one provider inspection. The exact serialized HTTP payload is
+verified through a local mock transport.
 
 ## UI boundary
 

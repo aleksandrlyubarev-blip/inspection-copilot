@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Sequence
 from enum import StrEnum
 from pathlib import Path
+from typing import Protocol
+
+from openai import OpenAIError
 
 from inspection_copilot.domain import (
     SOP,
@@ -13,7 +17,8 @@ from inspection_copilot.domain import (
     InspectionRequest,
     InspectionResult,
 )
-from inspection_copilot.service import FixtureInspector, run_inspection
+from inspection_copilot.openai_provider import build_openai_inspector
+from inspection_copilot.service import FixtureInspector, Inspector, run_inspection
 
 
 class DemoScenario(StrEnum):
@@ -21,6 +26,17 @@ class DemoScenario(StrEnum):
 
     BRIDGE_FAIL = "bridge_fail"
     AMBIGUOUS = "ambiguous"
+
+
+class DemoProvider(StrEnum):
+    """Runtime provider selected explicitly by the CLI."""
+
+    FIXTURE = "fixture"
+    OPENAI = "openai"
+
+
+class LiveProviderFactory(Protocol):
+    def __call__(self, *, image_root: Path) -> Inspector: ...
 
 
 _SCENARIO_FILES = {
@@ -68,7 +84,11 @@ def run_demo(
     return run_inspection(request, provider=FixtureInspector(assessment))
 
 
-def main() -> None:
+def main(
+    argv: Sequence[str] | None = None,
+    *,
+    live_provider_factory: LiveProviderFactory = build_openai_inspector,
+) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     parser.add_argument(
@@ -77,12 +97,35 @@ def main() -> None:
         choices=tuple(DemoScenario),
         default=DemoScenario.BRIDGE_FAIL,
     )
-    args = parser.parse_args()
-    print(run_demo(args.repo_root, scenario=args.scenario).model_dump_json(indent=2))
+    parser.add_argument(
+        "--provider",
+        type=DemoProvider,
+        choices=tuple(DemoProvider),
+        default=DemoProvider.FIXTURE,
+    )
+    parser.add_argument(
+        "--confirm-live-request",
+        action="store_true",
+        help="authorize one OpenAI API request that may incur cost",
+    )
+    args = parser.parse_args(argv)
+
+    if args.provider is DemoProvider.OPENAI:
+        if not args.confirm_live_request:
+            parser.error("--provider openai requires --confirm-live-request")
+        request = load_demo_request(args.repo_root, scenario=args.scenario)
+        try:
+            provider = live_provider_factory(image_root=_demo_directory(args.repo_root))
+        except OpenAIError:
+            parser.error("Live provider unavailable; verify OPENAI_API_KEY")
+        result = run_inspection(request, provider=provider)
+    else:
+        result = run_demo(args.repo_root, scenario=args.scenario)
+    print(result.model_dump_json(indent=2))
 
 
 if __name__ == "__main__":
     main()
 
 
-__all__ = ["DemoScenario", "load_demo_request", "run_demo"]
+__all__ = ["DemoProvider", "DemoScenario", "load_demo_request", "main", "run_demo"]

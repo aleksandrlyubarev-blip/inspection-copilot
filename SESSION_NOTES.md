@@ -35,6 +35,8 @@ Inspection Copilot Build Week project.
   and a timed demo script with an opening synthetic-only disclaimer.
 - The bounded GPT-5.6 provider is implemented behind the existing `Inspector`
   interface. Default CLI/UI execution remains offline and credential-free.
+- The CLI live path requires the explicit pair `--provider openai` and
+  `--confirm-live-request`; without both, it does not construct the live provider.
 
 ## Verification
 
@@ -58,10 +60,14 @@ Inspection Copilot Build Week project.
   strict HTTP JSON Schema, `store=false`, timeout/output bounds, zero SDK retries,
   path and size validation, and sanitized failure behavior. The 27-test full
   suite, Ruff, and strict Mypy pass without a live request.
+- Runtime-selector gate: CLI tests prove that missing confirmation stops before
+  provider construction and the confirmed path performs one inspection. The
+  credential-construction error is sanitized. The 30-test full suite, Ruff,
+  strict Mypy, and dependency check pass.
 
 ## Next steps
 
 1. Complete Devpost join after the user login takeover.
-2. Add an explicit opt-in runtime selector without changing the offline default.
-3. Run a separately authorized, cost-bounded live model smoke.
-4. Add a small evaluation ledger for fixture and live results.
+2. Run a separately authorized, cost-bounded live model smoke.
+3. Add a small evaluation ledger for fixture and live results.
+4. Expose the live result in the UI only after the CLI smoke is validated.
