@@ -130,6 +130,9 @@ authorized, cost-bounded GPT-5.6 smoke on repository-owned synthetic data.
   reservation behavior, broken-symlink rejection, sanitized output, and marker
   retention after an uncertain boundary failure. Ruff, format, strict Mypy, all
   94 tests, `pip check`, and the installed CLI dry guard pass without an API call.
+  A confirmed installed-CLI run with `OPENAI_API_KEY` explicitly absent also
+  exits through the sanitized construction error, removes its reservation, and
+  creates neither stdout evidence nor a repository artifact.
 - The degraded adversarial pre-request review found and fixed two request-budget
   bypasses: broken evidence symlinks were not treated as occupied, and a public
   output-path override could create multiple independent targets. The public CLI
