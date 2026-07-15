@@ -52,6 +52,10 @@ Inspection Copilot Build Week project.
   size/count are bounded and updates use same-directory atomic replacement.
 - The Streamlit workspace exposes the result's sanitized provenance in a native
   JSON audit panel; it does not pass provenance fields through custom HTML.
+- The `inspection-copilot-ledger` CLI atomically rebuilds a deterministic
+  two-entry fixture ledger at an explicit output path. The committed artifact is
+  strict-schema checked and contains no raw case IDs or assessment/evidence free
+  text. Fixture orchestration is separated from generic ledger persistence.
 
 ## Verification
 
@@ -97,10 +101,17 @@ Inspection Copilot Build Week project.
   count bounds, missing parents, atomic failure recovery, and strict read-back.
 - UI provenance gate: 7 Streamlit AppTests pass, including structured equality
   between the audit panel and the typed `InspectionResult.provenance` record.
+- Fixture-ledger gate: 12 focused tests prove deterministic build/CLI output,
+  committed-evidence equality, and the ledger contract's safety properties.
+- Goal final gate: installed console entry point output is byte-identical to the
+  committed ledger; Ruff, formatting, strict Mypy, all 57 tests, `pip check`, and
+  `git diff --check` pass. Review replaced raw case IDs with SHA-256 fingerprints
+  and separated fixture CLI orchestration from provider-neutral persistence.
 
 ## Next steps
 
 1. Complete Devpost join after the user login takeover.
 2. Run a separately authorized, cost-bounded live model smoke.
-3. Extend the ledger with sanitized live evidence after that smoke.
+3. Append sanitized live evidence only after that smoke and with an explicit
+   timestamp policy.
 4. Expose the live result in the UI only after the CLI smoke is validated.

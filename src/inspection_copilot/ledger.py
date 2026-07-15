@@ -31,7 +31,7 @@ class LedgerAppendStatus(StrEnum):
 
 class InspectionLedgerEntry(StrictModel):
     entry_id: str = Field(pattern=r"^[0-9a-f]{64}$")
-    case_id: str = Field(min_length=1)
+    case_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     final_decision: Decision
     evidence_complete: bool
     review_reasons: list[ReviewReason]
@@ -40,7 +40,7 @@ class InspectionLedgerEntry(StrictModel):
     @model_validator(mode="after")
     def require_consistent_entry(self) -> Self:
         if self.entry_id != _entry_id(
-            case_id=self.case_id,
+            case_sha256=self.case_sha256,
             final_decision=self.final_decision,
             evidence_complete=self.evidence_complete,
             review_reasons=self.review_reasons,
@@ -79,15 +79,16 @@ class LedgerAppendResult(StrictModel):
 
 
 def entry_from_result(result: InspectionResult) -> InspectionLedgerEntry:
+    case_sha256 = sha256(result.case_id.encode()).hexdigest()
     return InspectionLedgerEntry(
         entry_id=_entry_id(
-            case_id=result.case_id,
+            case_sha256=case_sha256,
             final_decision=result.final_decision,
             evidence_complete=result.evidence_complete,
             review_reasons=result.review_reasons,
             provenance=result.provenance,
         ),
-        case_id=result.case_id,
+        case_sha256=case_sha256,
         final_decision=result.final_decision,
         evidence_complete=result.evidence_complete,
         review_reasons=result.review_reasons,
@@ -117,10 +118,7 @@ def append_result(path: Path, result: InspectionResult) -> LedgerAppendResult:
             )
 
     updated = InspectionLedger(entries=[*ledger.entries, entry])
-    serialized = (updated.model_dump_json(indent=2) + "\n").encode()
-    if len(serialized) > MAX_LEDGER_BYTES:
-        raise ValueError("inspection ledger exceeds the 1 MiB size limit")
-    _atomic_write(path, serialized)
+    write_ledger(path, updated)
     return LedgerAppendResult(
         status=LedgerAppendStatus.APPENDED,
         entry_id=entry.entry_id,
@@ -128,9 +126,16 @@ def append_result(path: Path, result: InspectionResult) -> LedgerAppendResult:
     )
 
 
+def write_ledger(path: Path, ledger: InspectionLedger) -> None:
+    serialized = (ledger.model_dump_json(indent=2) + "\n").encode()
+    if len(serialized) > MAX_LEDGER_BYTES:
+        raise ValueError("inspection ledger exceeds the 1 MiB size limit")
+    _atomic_write(path, serialized)
+
+
 def _entry_id(
     *,
-    case_id: str,
+    case_sha256: str,
     final_decision: Decision,
     evidence_complete: bool,
     review_reasons: list[ReviewReason],
@@ -138,7 +143,7 @@ def _entry_id(
 ) -> str:
     canonical = json.dumps(
         {
-            "case_id": case_id,
+            "case_sha256": case_sha256,
             "final_decision": final_decision.value,
             "evidence_complete": evidence_complete,
             "review_reasons": [reason.value for reason in review_reasons],
@@ -182,4 +187,5 @@ __all__ = [
     "append_result",
     "entry_from_result",
     "load_ledger",
+    "write_ledger",
 ]

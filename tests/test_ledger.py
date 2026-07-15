@@ -1,4 +1,7 @@
 import json
+import subprocess
+import sys
+from hashlib import sha256
 from pathlib import Path
 
 import pytest
@@ -15,6 +18,7 @@ from inspection_copilot.ledger import (
     entry_from_result,
     load_ledger,
 )
+from inspection_copilot.ledger_cli import build_offline_ledger
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -28,18 +32,19 @@ def test_entry_is_deterministic_and_contains_only_sanitized_metadata() -> None:
 
     assert first == second
     assert len(first.entry_id) == 64
-    assert first.case_id == result.case_id
+    assert first.case_sha256 == sha256(result.case_id.encode()).hexdigest()
     assert first.final_decision == result.final_decision
     assert first.provenance == result.provenance
     assert set(payload) == {
         "entry_id",
-        "case_id",
+        "case_sha256",
         "final_decision",
         "evidence_complete",
         "review_reasons",
         "provenance",
     }
     serialized = first.model_dump_json()
+    assert result.case_id not in serialized
     assert result.assessment.summary not in serialized
     assert result.assessment.evidence[0].observation not in serialized
     assert "assessment" not in payload
@@ -73,9 +78,9 @@ def test_distinct_fixture_results_append_in_order(tmp_path: Path) -> None:
     ledger = load_ledger(ledger_path)
 
     assert appended.total_entries == 2
-    assert [entry.case_id for entry in ledger.entries] == [
-        "synthetic-bridge-001",
-        "synthetic-ambiguous-001",
+    assert [entry.final_decision for entry in ledger.entries] == [
+        bridge.final_decision,
+        ambiguous.final_decision,
     ]
 
 
@@ -147,3 +152,46 @@ def test_committed_json_shape_can_be_read_back(tmp_path: Path) -> None:
 
     assert payload["schema_version"] == "1.0"
     assert validated == load_ledger(ledger_path)
+
+
+def test_offline_fixture_ledger_is_deterministic_and_sanitized() -> None:
+    first = build_offline_ledger(REPO_ROOT)
+    second = build_offline_ledger(REPO_ROOT)
+
+    assert first == second
+    serialized = first.model_dump_json()
+    assert "synthetic-bridge-001" not in serialized
+    assert "synthetic-ambiguous-001" not in serialized
+    payload = first.model_dump(mode="json")
+    assert all("assessment" not in entry for entry in payload["entries"])
+    assert all("summary" not in entry for entry in payload["entries"])
+
+
+def test_ledger_cli_writes_and_prints_deterministic_schema_valid_json(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "offline_ledger.json"
+    command = [
+        sys.executable,
+        "-m",
+        "inspection_copilot.ledger_cli",
+        "--repo-root",
+        str(REPO_ROOT),
+        "--output",
+        str(output),
+    ]
+
+    first = subprocess.run(command, cwd=REPO_ROOT, check=True, capture_output=True, text=True)
+    first_bytes = output.read_bytes()
+    second = subprocess.run(command, cwd=REPO_ROOT, check=True, capture_output=True, text=True)
+
+    assert InspectionLedger.model_validate_json(first.stdout) == build_offline_ledger(REPO_ROOT)
+    assert InspectionLedger.model_validate_json(second.stdout) == build_offline_ledger(REPO_ROOT)
+    assert output.read_bytes() == first_bytes
+    assert load_ledger(output) == build_offline_ledger(REPO_ROOT)
+
+
+def test_committed_offline_ledger_matches_current_fixture_build() -> None:
+    committed = load_ledger(REPO_ROOT / "evidence" / "offline_inspection_ledger.json")
+
+    assert committed == build_offline_ledger(REPO_ROOT)

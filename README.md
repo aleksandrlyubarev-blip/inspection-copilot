@@ -97,6 +97,19 @@ inspection-copilot-eval --repo-root .
 The committed report is a workflow regression baseline, not a claim about model
 or manufacturing accuracy.
 
+Rebuild the sanitized offline inspection ledger:
+
+```bash
+inspection-copilot-ledger \
+  --repo-root . \
+  --output evidence/offline_inspection_ledger.json
+```
+
+The ledger contains only structured routing metadata and provenance. It excludes
+raw case IDs, images, SOP bodies, observations, assessment summaries, response
+IDs, usage, timestamps, and secrets. The same fixture build produces identical
+JSON.
+
 ## Local quality gate
 
 ```bash
@@ -118,6 +131,7 @@ pytest -q
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Evaluation ledger](docs/EVALUATION.md)
+- [Sanitized inspection ledger](evidence/offline_inspection_ledger.json)
 - [Three-minute demo script](docs/DEMO_SCRIPT.md)
 - [Grok red-team packet](docs/GROK_REVIEW_PACKET.md)
 - [Grok review and Codex triage](docs/reviews/GROK_RED_TEAM_2026-07-15.md)

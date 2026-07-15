@@ -84,6 +84,21 @@ reported by the provider, and binds the verdict to workflow versions and input
 fingerprints. It is deterministic and contains no timestamps, response IDs,
 credentials, raw images, or SOP bodies.
 
+## Local inspection ledger
+
+The offline ledger is a versioned JSON document containing only a case-ID
+fingerprint, decision routing metadata, and `InspectionProvenance`; it does not
+persist the raw case ID. Each entry ID is SHA-256 over its canonical sanitized
+content. Appending the exact same result is a byte-identical no-op; tampered IDs
+and duplicate entries fail validation.
+
+Writes use a bounded same-directory temporary file, `fsync`, and atomic replace.
+Reads are limited to 1 MiB and the schema permits at most 1,000 entries. The MVP
+is deliberately single-writer: it has no cross-process lock, database, or claim
+of concurrent update safety. Fixture construction lives in the CLI adapter, not
+the provider-neutral persistence module. The CLI rebuilds the complete two-entry
+offline evidence file rather than incrementally merging unknown data.
+
 ## UI boundary
 
 Streamlit renders the repository-owned image, automatic verdict, confidence,

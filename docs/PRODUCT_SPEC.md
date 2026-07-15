@@ -28,6 +28,7 @@ aggregate evidence trail.
 - One versioned SOP and repository-owned synthetic dataset.
 - Typed input, evidence, assessment, and result contracts.
 - Deterministic SOP/image fingerprints and versioned result provenance.
+- A bounded, sanitized, deterministic local inspection ledger for audit evidence.
 - A deterministic offline provider for end-to-end demo and tests.
 - A GPT-5.6 Responses API provider behind the same interface.
 - A simple web UI that clearly separates model verdict, evidence, and human review.
@@ -57,6 +58,8 @@ aggregate evidence trail.
    separately and accepted changes are reimplemented in Codex with regression tests.
 8. Every result identifies the exact image and canonical SOP by SHA-256 and records
    requested/effective model plus schema, prompt, and policy versions.
+9. The offline ledger stores only structured routing metadata and provenance;
+   exact replay is idempotent and committed evidence matches a fresh fixture build.
 
 ## Verification
 

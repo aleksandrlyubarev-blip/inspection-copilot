@@ -27,6 +27,22 @@ The command emits a strict JSON report. The committed
 `evidence/offline_evaluation.json` is checked against a fresh run in the test
 suite, so stale baseline numbers fail CI.
 
+## Sanitized inspection ledger
+
+`evidence/offline_inspection_ledger.json` binds a SHA-256 case fingerprint for
+each fixture route to its SOP and image fingerprints plus schema, prompt, policy,
+requested-model, and effective-model versions. Rebuild it deterministically with:
+
+```bash
+inspection-copilot-ledger \
+  --repo-root . \
+  --output evidence/offline_inspection_ledger.json
+```
+
+The test suite reads the committed file through the strict ledger schema and
+requires exact equality with a fresh in-memory fixture build. This is audit and
+workflow evidence, not model-accuracy evidence.
+
 ## Live evidence boundary
 
 Every inspection result now carries sanitized deterministic provenance: model,

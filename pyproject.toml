@@ -20,6 +20,7 @@ dependencies = [
 [project.scripts]
 inspection-copilot-demo = "inspection_copilot.demo:main"
 inspection-copilot-eval = "inspection_copilot.evaluation:main"
+inspection-copilot-ledger = "inspection_copilot.ledger_cli:main"
 
 [project.optional-dependencies]
 dev = [
