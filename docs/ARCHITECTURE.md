@@ -49,10 +49,16 @@ full product flow and gives judges a reproducible setup path.
 
 ### GPT-5.6 mode
 
-The live adapter will use the Responses API with image input and strict JSON
-Schema output. The request boundary will set `model=gpt-5.6`, `store=false`, no
-automatic retries, and explicit timeout/output limits. Model/API failures will
-produce a sanitized `needs_review`, not a fallback automatic verdict.
+The implemented adapter uses the Responses API with high-detail image input and
+strict JSON Schema output. The request boundary sets `model=gpt-5.6`,
+`store=false`, no automatic retries, medium reasoning effort, a 60-second
+timeout, and a 2,000-token output limit. It validates local image containment,
+format, and size before sending a request. Model/API/schema failures produce a
+sanitized `needs_review`, not a fallback automatic verdict.
+
+The adapter is not selected by the default CLI or UI yet, and no live request is
+part of the test suite. The exact serialized HTTP payload is verified through a
+local mock transport.
 
 ## UI boundary
 

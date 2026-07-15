@@ -56,6 +56,19 @@ review as separate records. Human review is session-local in this MVP.
 - `tests/test_ui.py` guards distinct automatic/human record labels, mandatory
   rationale, a human timestamp, and the escalation action.
 
+## GPT-5.6 provider boundary
+
+The typed provider adapter is implemented behind the same `Inspector` interface
+used by the offline fixture. Its mock-transport tests verify the serialized
+Responses API boundary: `model=gpt-5.6`, high-detail image input, strict JSON
+Schema output, `store=false`, a 60-second timeout, 2,000 output tokens, and zero
+automatic SDK retries. Provider or schema failures become a sanitized
+`needs_review` assessment.
+
+The default CLI and UI remain credential-free fixture flows. No live model call
+is performed by installation or tests; a cost-bounded live smoke remains a
+separate approval gate.
+
 ## Local quality gate
 
 ```bash
