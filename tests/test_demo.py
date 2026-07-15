@@ -3,7 +3,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from inspection_copilot.demo import load_demo_request, run_demo
+from inspection_copilot.demo import DemoScenario, load_demo_request, run_demo
 from inspection_copilot.domain import Decision, InspectionResult
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +28,14 @@ def test_fixture_demo_is_deterministic_and_evidence_backed() -> None:
     assert first.assessment.evidence[0].sop_rule_id == "SOLDER-BRIDGE-001"
 
 
+def test_ambiguous_demo_fails_closed_to_human_review() -> None:
+    result = run_demo(REPO_ROOT, scenario=DemoScenario.AMBIGUOUS)
+
+    assert result.final_decision is Decision.NEEDS_REVIEW
+    assert result.evidence_complete is False
+    assert result.review_reasons
+
+
 def test_demo_cli_outputs_schema_valid_json_without_credentials() -> None:
     completed = subprocess.run(
         [sys.executable, "-m", "inspection_copilot.demo", "--repo-root", str(REPO_ROOT)],
@@ -42,3 +50,23 @@ def test_demo_cli_outputs_schema_valid_json_without_credentials() -> None:
     payload = json.loads(completed.stdout)
     assert result.final_decision is Decision.FAIL
     assert payload["model"] == "fixture-inspector-v1"
+
+
+def test_ambiguous_cli_is_deterministic() -> None:
+    command = [
+        sys.executable,
+        "-m",
+        "inspection_copilot.demo",
+        "--repo-root",
+        str(REPO_ROOT),
+        "--scenario",
+        "ambiguous",
+    ]
+
+    first = subprocess.run(command, cwd=REPO_ROOT, check=True, capture_output=True, text=True)
+    second = subprocess.run(command, cwd=REPO_ROOT, check=True, capture_output=True, text=True)
+
+    assert first.stdout == second.stdout
+    assert (
+        InspectionResult.model_validate_json(first.stdout).final_decision is Decision.NEEDS_REVIEW
+    )

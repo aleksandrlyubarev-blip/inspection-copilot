@@ -25,11 +25,13 @@ adapter and web experience follow behind the same typed contract.
 ```bash
 python -m pip install -e '.[dev]'
 inspection-copilot-demo --repo-root .
+inspection-copilot-demo --repo-root . --scenario ambiguous
 ```
 
-The command reads only repository-owned synthetic fixtures and emits a strict
-JSON result. It does not read API credentials or access the network. Regenerate
-the deterministic demo image with:
+The first command returns an evidence-backed `fail`; the second uses a degraded
+fixture and deterministically fails closed to `needs_review`. Both commands read
+only repository-owned synthetic fixtures and emit strict JSON. They do not read
+API credentials or access the network. Regenerate both deterministic images with:
 
 ```bash
 python scripts/generate_synthetic_demo.py
@@ -41,8 +43,18 @@ Run the local inspection workspace:
 streamlit run streamlit_app.py
 ```
 
-The screen keeps the fixture verdict, cited SOP evidence, and human review as
-separate records. Human review is session-local in this MVP.
+The scenario selector demonstrates both supported automation and ambiguity. The
+screen keeps the automatic verdict, cited SOP evidence, and timestamped human
+review as separate records. Human review is session-local in this MVP.
+
+## Fail-closed proof
+
+- `tests/test_demo.py` repeats the offline flows and checks identical structured
+  results, including `needs_review` for the degraded scenario.
+- `tests/test_policy.py` proves that missing evidence and an invalid SOP rule
+  reference force `needs_review` even when the proposed verdict is `fail`.
+- `tests/test_ui.py` guards distinct automatic/human record labels, mandatory
+  rationale, a human timestamp, and the escalation action.
 
 ## Local quality gate
 
@@ -64,7 +76,9 @@ pytest -q
 ## Architecture and external review
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [Three-minute demo script](docs/DEMO_SCRIPT.md)
 - [Grok red-team packet](docs/GROK_REVIEW_PACKET.md)
+- [Grok review and Codex triage](docs/reviews/GROK_RED_TEAM_2026-07-15.md)
 
 ## License
 

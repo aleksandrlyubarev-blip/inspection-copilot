@@ -30,6 +30,9 @@ Inspection Copilot Build Week project.
 - Grok completed a non-coding public-material red-team review with seven findings.
   Codex accepted GROK-01 through GROK-05, deferred GROK-06, and rejected the
   arbitrary evidence-count proposal in GROK-07.
+- Codex remediation implements the five accepted findings: public fail-closed
+  proof, distinct automatic/human records, a degraded-image escalation scenario,
+  and a timed demo script with an opening synthetic-only disclaimer.
 
 ## Verification
 
@@ -45,10 +48,14 @@ Inspection Copilot Build Week project.
 - Web vertical gate: 3 Streamlit AppTests and 16 full tests pass. A localhost
   browser smoke confirmed the verdict/evidence screen and recorded a separate
   human review with rationale.
+- Remediation focused gate: 10 CLI/UI tests and the 20-test full suite pass under
+  the repository Python 3.11 environment. The original bridge PNG remains
+  byte-identical; the second image is generated deterministically by the same
+  repository script.
 
 ## Next steps
 
-1. Commit and publish the web vertical slice and review packet.
-2. Run the Grok red-team packet against only public repository materials.
-3. Triage findings and implement accepted behavior changes through TDD.
-4. Add the bounded GPT-5.6 request contract behind the provider interface.
+1. Complete Devpost join after the user login takeover.
+2. Commit and publish the Codex remediation slice.
+3. Add the bounded GPT-5.6 request contract behind the provider interface.
+4. Run a separately authorized, cost-bounded live model smoke.

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from enum import StrEnum
 from pathlib import Path
 
 from inspection_copilot.domain import (
@@ -15,15 +16,33 @@ from inspection_copilot.domain import (
 from inspection_copilot.service import FixtureInspector, run_inspection
 
 
+class DemoScenario(StrEnum):
+    """Repository-owned scenarios available to the offline demo."""
+
+    BRIDGE_FAIL = "bridge_fail"
+    AMBIGUOUS = "ambiguous"
+
+
+_SCENARIO_FILES = {
+    DemoScenario.BRIDGE_FAIL: ("case.json", "assessment.json"),
+    DemoScenario.AMBIGUOUS: ("case_ambiguous.json", "assessment_ambiguous.json"),
+}
+
+
 def _demo_directory(repo_root: Path) -> Path:
     return (repo_root / "examples" / "synthetic").resolve(strict=True)
 
 
-def load_demo_request(repo_root: Path) -> InspectionRequest:
+def load_demo_request(
+    repo_root: Path,
+    *,
+    scenario: DemoScenario = DemoScenario.BRIDGE_FAIL,
+) -> InspectionRequest:
     demo_directory = _demo_directory(repo_root)
+    case_file, _ = _SCENARIO_FILES[scenario]
     sop = SOP.model_validate_json((demo_directory / "sop.json").read_text(encoding="utf-8"))
     case = InspectionCase.model_validate_json(
-        (demo_directory / "case.json").read_text(encoding="utf-8")
+        (demo_directory / case_file).read_text(encoding="utf-8")
     )
     image_path = (demo_directory / case.image_ref).resolve(strict=True)
     try:
@@ -35,11 +54,16 @@ def load_demo_request(repo_root: Path) -> InspectionRequest:
     return InspectionRequest(sop=sop, case=case)
 
 
-def run_demo(repo_root: Path) -> InspectionResult:
+def run_demo(
+    repo_root: Path,
+    *,
+    scenario: DemoScenario = DemoScenario.BRIDGE_FAIL,
+) -> InspectionResult:
     demo_directory = _demo_directory(repo_root)
-    request = load_demo_request(repo_root)
+    _, assessment_file = _SCENARIO_FILES[scenario]
+    request = load_demo_request(repo_root, scenario=scenario)
     assessment = Assessment.model_validate_json(
-        (demo_directory / "assessment.json").read_text(encoding="utf-8")
+        (demo_directory / assessment_file).read_text(encoding="utf-8")
     )
     return run_inspection(request, provider=FixtureInspector(assessment))
 
@@ -47,9 +71,18 @@ def run_demo(repo_root: Path) -> InspectionResult:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
+    parser.add_argument(
+        "--scenario",
+        type=DemoScenario,
+        choices=tuple(DemoScenario),
+        default=DemoScenario.BRIDGE_FAIL,
+    )
     args = parser.parse_args()
-    print(run_demo(args.repo_root).model_dump_json(indent=2))
+    print(run_demo(args.repo_root, scenario=args.scenario).model_dump_json(indent=2))
 
 
 if __name__ == "__main__":
     main()
+
+
+__all__ = ["DemoScenario", "load_demo_request", "run_demo"]
