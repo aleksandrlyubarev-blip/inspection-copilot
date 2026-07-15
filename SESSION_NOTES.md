@@ -47,6 +47,9 @@ Inspection Copilot Build Week project.
 - Results now carry deterministic provenance: schema/prompt/policy versions,
   requested/effective model, canonical SOP SHA-256, and exact image SHA-256. The
   live provider verifies the image fingerprint before crossing the API boundary.
+- A typed local ledger contract now derives content-addressed entries from only
+  sanitized result metadata. Exact replays are byte-identical no-ops; ledger
+  size/count are bounded and updates use same-directory atomic replacement.
 
 ## Verification
 
@@ -87,6 +90,9 @@ Inspection Copilot Build Week project.
   serialization is stable, the live adapter rejects a hash mismatch without an
   API call, policy rejects mismatched provenance, invalid hashes fail schema
   validation, and all 44 tests pass.
+- Ledger-contract gate: 9 focused tests cover sanitization, deterministic IDs,
+  duplicate no-op behavior, ordered append, tamper/duplicate rejection, size and
+  count bounds, missing parents, atomic failure recovery, and strict read-back.
 
 ## Next steps
 
