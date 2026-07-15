@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Protocol
+from typing import Protocol, Self
+
+from pydantic import model_validator
 
 from inspection_copilot.domain import (
     Assessment,
@@ -14,6 +16,7 @@ from inspection_copilot.domain import (
     ProviderOutcome,
     ProviderStatus,
     ReviewReason,
+    StrictModel,
 )
 from inspection_copilot.policy import POLICY_VERSION, canonical_sop_sha256, finalize_assessment
 
@@ -32,6 +35,29 @@ class Inspector(Protocol):
     model: str
 
     def inspect(self, request: InspectionRequest) -> ProviderOutcome: ...
+
+
+class InspectionExecution(StrictModel):
+    """One provider outcome bound to the policy result derived from it."""
+
+    outcome: ProviderOutcome
+    result: InspectionResult
+
+    @model_validator(mode="after")
+    def require_bound_outcome(self) -> Self:
+        provenance = self.result.provenance
+        if (
+            provenance.requested_model != self.outcome.requested_model
+            or provenance.effective_model != self.outcome.effective_model
+            or provenance.prompt_version != self.outcome.prompt_version
+        ):
+            raise ValueError("outcome does not match result provenance")
+        if self.outcome.status is ProviderStatus.SUCCESS:
+            if self.outcome.assessment != self.result.assessment:
+                raise ValueError("successful outcome does not match result assessment")
+        elif provider_review_reason(self.outcome.status) not in self.result.review_reasons:
+            raise ValueError("failed outcome does not match result review reasons")
+        return self
 
 
 class FixtureInspector:
@@ -57,7 +83,23 @@ def run_inspection(
     *,
     provider: Inspector,
 ) -> InspectionResult:
+    return execute_inspection(request, provider=provider).result
+
+
+def execute_inspection(
+    request: InspectionRequest,
+    *,
+    provider: Inspector,
+) -> InspectionExecution:
     outcome = provider.inspect(request)
+    result = _result_from_outcome(request, outcome)
+    return InspectionExecution(outcome=outcome, result=result)
+
+
+def _result_from_outcome(
+    request: InspectionRequest,
+    outcome: ProviderOutcome,
+) -> InspectionResult:
     if outcome.assessment is None:
         assessment = _provider_failure_assessment()
         additional_reasons = [provider_review_reason(outcome.status)]
@@ -106,7 +148,9 @@ def _provider_failure_assessment() -> Assessment:
 __all__ = [
     "FIXTURE_PROMPT_VERSION",
     "FixtureInspector",
+    "InspectionExecution",
     "Inspector",
+    "execute_inspection",
     "provider_review_reason",
     "run_inspection",
 ]
