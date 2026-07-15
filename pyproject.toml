@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "inspection-copilot"
+version = "0.1.0"
+description = "Evidence-backed visual inspection copilot for manufacturing quality teams"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { text = "MIT" }
+authors = [{ name = "Aleksandr Lyubarev" }]
+dependencies = [
+  "openai>=2.45,<3",
+  "pydantic>=2.10,<3",
+  "streamlit>=1.35,<2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.15",
+  "pytest>=8.3",
+  "ruff>=0.11",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/inspection_copilot"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["inspection_copilot"]
+mypy_path = "src"
