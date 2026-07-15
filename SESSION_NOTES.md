@@ -44,6 +44,9 @@ Inspection Copilot Build Week project.
 - The provider boundary returns a validated `ProviderOutcome` instead of a bare
   assessment. Timeout, rate limit, unavailability, refusal, and invalid output
   remain distinct fail-closed reasons; raw exception details are not returned.
+- Results now carry deterministic provenance: schema/prompt/policy versions,
+  requested/effective model, canonical SOP SHA-256, and exact image SHA-256. The
+  live provider verifies the image fingerprint before crossing the API boundary.
 
 ## Verification
 
@@ -80,6 +83,10 @@ Inspection Copilot Build Week project.
 - Provider-outcome gate: 11 focused tests cover success, the real SDK schema
   boundary, timeout, rate limit, unavailability, refusal, invalid output, and
   contract validation. Ruff, strict Mypy, all 39 tests, and `pip check` pass.
+- Provenance gate: the synthetic loader hashes exact image bytes, canonical SOP
+  serialization is stable, the live adapter rejects a hash mismatch without an
+  API call, policy rejects mismatched provenance, invalid hashes fail schema
+  validation, and all 44 tests pass.
 
 ## Next steps
 

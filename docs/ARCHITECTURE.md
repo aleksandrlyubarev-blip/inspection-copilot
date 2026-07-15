@@ -9,7 +9,7 @@ turns free-form model text directly into an operational decision.
 Synthetic image + versioned SOP
               │
               ▼
-      InspectionRequest
+ InspectionRequest + image SHA-256
               │
               ▼
      Inspector interface
@@ -27,6 +27,7 @@ Synthetic image + versioned SOP
               ▼
        InspectionResult
         ├─ verdict + evidence
+        ├─ input-bound provenance
         └─ separate human review
 ```
 
@@ -45,6 +46,11 @@ Synthetic image + versioned SOP
 - Human review is stored separately and cannot rewrite the fixture/model record.
 - Case, model, and evidence fields are HTML-escaped before entering the small
   `unsafe_allow_html` presentation templates.
+- Every result carries schema, prompt, and deterministic policy versions; the
+  requested and effective model identifiers; and SHA-256 fingerprints of the
+  canonical SOP and exact image bytes.
+- The live adapter re-hashes the image immediately before request construction
+  and stops before the API boundary if it differs from the request fingerprint.
 
 ## Runtime modes
 
@@ -69,6 +75,14 @@ the test suite. The CLI requires both `--provider openai` and
 `--confirm-live-request` before it constructs the client; the selected scenario
 then makes exactly one provider inspection. The exact serialized HTTP payload is
 verified through a local mock transport.
+
+## Result provenance
+
+`InspectionResult.model` remains the compatibility alias for the requested
+model. The nested `provenance` record distinguishes that alias from the model
+reported by the provider, and binds the verdict to workflow versions and input
+fingerprints. It is deterministic and contains no timestamps, response IDs,
+credentials, raw images, or SOP bodies.
 
 ## UI boundary
 

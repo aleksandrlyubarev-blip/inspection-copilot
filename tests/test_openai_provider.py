@@ -90,6 +90,10 @@ def test_provider_sends_bounded_strict_vision_request() -> None:
 
     result = run_inspection(load_demo_request(REPO_ROOT), provider=provider)
     assert result.model == "gpt-5.6"
+    assert result.provenance.requested_model == "gpt-5.6"
+    assert result.provenance.effective_model == "gpt-5.6-sol"
+    assert result.provenance.prompt_version == "inspection-v1"
+    assert result.provenance.policy_version == "evidence-policy-v1"
 
 
 def test_sdk_serializes_strict_schema_at_http_boundary() -> None:
@@ -204,6 +208,17 @@ def test_provider_rejects_oversized_image_before_request(tmp_path: Path) -> None
     provider = OpenAIInspector(client=_client(responses), image_root=image_root)
 
     with pytest.raises(ValueError, match="10 MiB"):
+        provider.inspect(request)
+
+    assert responses.calls == []
+
+
+def test_provider_rejects_image_hash_mismatch_before_request() -> None:
+    request = load_demo_request(REPO_ROOT).model_copy(update={"image_sha256": "0" * 64})
+    responses = FakeResponses(parsed=_assessment())
+    provider = OpenAIInspector(client=_client(responses), image_root=IMAGE_ROOT)
+
+    with pytest.raises(ValueError, match="hash does not match"):
         provider.inspect(request)
 
     assert responses.calls == []

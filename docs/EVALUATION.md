@@ -29,8 +29,10 @@ suite, so stale baseline numbers fail CI.
 
 ## Live evidence boundary
 
-A later, separately authorized live smoke may record only sanitized evidence:
-model, case hash, structured decision, policy outcome, and a timezone-aware
-timestamp. It must not store the raw image, SOP body, free-form response,
-response ID, usage details, or credentials. One live result will validate the
-integration boundary; it will still not establish manufacturing accuracy.
+Every inspection result now carries sanitized deterministic provenance: model,
+prompt/policy/schema versions, and SOP/image hashes. A later, separately
+authorized live smoke may persist those fields with the structured decision,
+policy outcome, and a timezone-aware timestamp. It must not store the raw image,
+SOP body, free-form response, response ID, usage details, or credentials. One
+live result will validate the integration boundary; it will still not establish
+manufacturing accuracy.

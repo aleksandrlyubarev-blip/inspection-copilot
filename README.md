@@ -8,6 +8,10 @@ Inspection Copilot turns an image and a versioned SOP into a structured
 observable evidence and a valid SOP rule reference. Ambiguity is escalated to a
 human instead of being hidden behind model confidence.
 
+Each result also includes deterministic audit provenance: SHA-256 fingerprints
+for the canonical SOP and exact image bytes, requested and effective model IDs,
+and schema, prompt, and policy versions.
+
 ## Build Week status
 
 This is a new standalone repository created during Build Week. Its first

@@ -1,6 +1,7 @@
 import json
 import subprocess
 import sys
+from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +22,7 @@ def test_demo_uses_repository_owned_synthetic_image() -> None:
     assert image_path.is_file()
     assert image_path.suffix == ".png"
     assert "synthetic" in request.case.context.lower()
+    assert request.image_sha256 == sha256(image_path.read_bytes()).hexdigest()
 
 
 def test_fixture_demo_is_deterministic_and_evidence_backed() -> None:
@@ -31,6 +33,21 @@ def test_fixture_demo_is_deterministic_and_evidence_backed() -> None:
     assert first.final_decision is Decision.FAIL
     assert first.evidence_complete is True
     assert first.assessment.evidence[0].sop_rule_id == "SOLDER-BRIDGE-001"
+    assert first.model == "fixture-inspector-v1"
+    assert first.provenance.schema_version == "1.0"
+    assert first.provenance.requested_model == "fixture-inspector-v1"
+    assert first.provenance.effective_model == "fixture-inspector-v1"
+    assert first.provenance.prompt_version == "fixture-v1"
+    assert first.provenance.policy_version == "evidence-policy-v1"
+    assert first.provenance.image_sha256 == load_demo_request(REPO_ROOT).image_sha256
+
+    canonical_sop = json.dumps(
+        load_demo_request(REPO_ROOT).sop.model_dump(mode="json"),
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode()
+    assert first.provenance.sop_sha256 == sha256(canonical_sop).hexdigest()
 
 
 def test_ambiguous_demo_fails_closed_to_human_review() -> None:

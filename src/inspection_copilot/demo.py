@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from collections.abc import Sequence
 from enum import StrEnum
+from hashlib import sha256
 from pathlib import Path
 from typing import Protocol
 
@@ -67,7 +68,11 @@ def load_demo_request(
         raise ValueError("demo image must stay inside examples/synthetic") from exc
     if not image_path.is_file() or image_path.suffix.lower() != ".png":
         raise ValueError("demo image must be a PNG file")
-    return InspectionRequest(sop=sop, case=case)
+    return InspectionRequest(
+        sop=sop,
+        case=case,
+        image_sha256=sha256(image_path.read_bytes()).hexdigest(),
+    )
 
 
 def run_demo(

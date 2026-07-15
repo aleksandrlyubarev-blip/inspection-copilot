@@ -8,13 +8,14 @@ from inspection_copilot.domain import (
     Assessment,
     Decision,
     ImageQuality,
+    InspectionProvenance,
     InspectionRequest,
     InspectionResult,
     ProviderOutcome,
     ProviderStatus,
     ReviewReason,
 )
-from inspection_copilot.policy import finalize_assessment
+from inspection_copilot.policy import POLICY_VERSION, canonical_sop_sha256, finalize_assessment
 
 FIXTURE_PROMPT_VERSION = "fixture-v1"
 
@@ -66,8 +67,22 @@ def run_inspection(
     return finalize_assessment(
         request,
         assessment,
-        model=outcome.requested_model,
+        provenance=_build_provenance(request, outcome),
         additional_review_reasons=additional_reasons,
+    )
+
+
+def _build_provenance(
+    request: InspectionRequest,
+    outcome: ProviderOutcome,
+) -> InspectionProvenance:
+    return InspectionProvenance(
+        sop_sha256=canonical_sop_sha256(request.sop),
+        image_sha256=request.image_sha256,
+        requested_model=outcome.requested_model,
+        effective_model=outcome.effective_model,
+        prompt_version=outcome.prompt_version,
+        policy_version=POLICY_VERSION,
     )
 
 

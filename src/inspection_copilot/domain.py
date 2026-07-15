@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import Self
+from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -83,6 +83,7 @@ class InspectionCase(StrictModel):
 class InspectionRequest(StrictModel):
     sop: SOP
     case: InspectionCase
+    image_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
 
 
 class Evidence(StrictModel):
@@ -134,6 +135,16 @@ class ProviderOutcome(StrictModel):
         }
 
 
+class InspectionProvenance(StrictModel):
+    schema_version: Literal["1.0"] = "1.0"
+    sop_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    image_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    requested_model: str = Field(min_length=1)
+    effective_model: str | None
+    prompt_version: str = Field(min_length=1)
+    policy_version: str = Field(min_length=1)
+
+
 class InspectionResult(StrictModel):
     case_id: str = Field(min_length=1)
     final_decision: Decision
@@ -142,9 +153,12 @@ class InspectionResult(StrictModel):
     assessment: Assessment
     model: str = Field(min_length=1)
     summary: str = Field(min_length=1)
+    provenance: InspectionProvenance
 
     @model_validator(mode="after")
     def require_consistent_decision(self) -> Self:
+        if self.model != self.provenance.requested_model:
+            raise ValueError("model must match provenance requested_model")
         if self.final_decision is Decision.NEEDS_REVIEW:
             if self.evidence_complete or not self.review_reasons:
                 raise ValueError("needs_review requires reasons and incomplete evidence")
@@ -164,6 +178,7 @@ __all__ = [
     "Evidence",
     "ImageQuality",
     "InspectionCase",
+    "InspectionProvenance",
     "InspectionRequest",
     "InspectionResult",
     "ProviderOutcome",

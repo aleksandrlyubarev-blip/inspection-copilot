@@ -1,3 +1,6 @@
+import json
+from hashlib import sha256
+
 import pytest
 from pydantic import ValidationError
 
@@ -8,6 +11,7 @@ from inspection_copilot.domain import (
     Evidence,
     ImageQuality,
     InspectionCase,
+    InspectionProvenance,
     InspectionRequest,
     ReviewReason,
     SOPRule,
@@ -36,6 +40,24 @@ def _request() -> InspectionRequest:
             product_type="SMT PCB",
             context="Repository-owned synthetic demo only.",
         ),
+        image_sha256="0" * 64,
+    )
+
+
+def _provenance() -> InspectionProvenance:
+    canonical_sop = json.dumps(
+        _request().sop.model_dump(mode="json"),
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode()
+    return InspectionProvenance(
+        sop_sha256=sha256(canonical_sop).hexdigest(),
+        image_sha256="0" * 64,
+        requested_model="fixture-v1",
+        effective_model="fixture-v1",
+        prompt_version="fixture-v1",
+        policy_version="evidence-policy-v1",
     )
 
 
@@ -72,7 +94,7 @@ def test_sop_rejects_duplicate_rule_ids() -> None:
 
 
 def test_supported_assessment_keeps_automatic_fail() -> None:
-    result = finalize_assessment(_request(), _assessment(), model="fixture-v1")
+    result = finalize_assessment(_request(), _assessment(), provenance=_provenance())
 
     assert result.final_decision is Decision.FAIL
     assert result.evidence_complete is True
@@ -118,7 +140,7 @@ def test_unsafe_assessment_fails_closed(
     assessment: Assessment,
     reason: ReviewReason,
 ) -> None:
-    result = finalize_assessment(_request(), assessment, model="fixture-v1")
+    result = finalize_assessment(_request(), assessment, provenance=_provenance())
 
     assert result.final_decision is Decision.NEEDS_REVIEW
     assert result.evidence_complete is False
@@ -129,8 +151,35 @@ def test_model_requested_review_remains_human_review() -> None:
     result = finalize_assessment(
         _request(),
         _assessment(proposed_decision=Decision.NEEDS_REVIEW),
-        model="fixture-v1",
+        provenance=_provenance(),
     )
 
     assert result.final_decision is Decision.NEEDS_REVIEW
     assert ReviewReason.MODEL_REQUESTED_REVIEW in result.review_reasons
+
+
+def test_request_rejects_invalid_image_hash() -> None:
+    payload = _request().model_dump()
+    payload["image_sha256"] = "not-a-sha256"
+
+    with pytest.raises(ValidationError, match="image_sha256"):
+        InspectionRequest.model_validate(payload)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("image_sha256", "f" * 64, "image"),
+        ("sop_sha256", "f" * 64, "SOP"),
+        ("policy_version", "other-policy", "policy"),
+    ],
+)
+def test_policy_rejects_provenance_not_bound_to_request(
+    field: str,
+    value: str,
+    message: str,
+) -> None:
+    provenance = _provenance().model_copy(update={field: value})
+
+    with pytest.raises(ValueError, match=message):
+        finalize_assessment(_request(), _assessment(), provenance=provenance)

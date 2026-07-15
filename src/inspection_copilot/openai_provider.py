@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+from hashlib import sha256
 from pathlib import Path
 
 from openai import APITimeoutError, OpenAI, OpenAIError, RateLimitError
@@ -45,7 +46,10 @@ class OpenAIInspector:
         self.model = model
 
     def inspect(self, request: InspectionRequest) -> ProviderOutcome:
-        image_data_url = self._load_image_data_url(request.case.image_ref)
+        image_data_url = self._load_image_data_url(
+            request.case.image_ref,
+            expected_sha256=request.image_sha256,
+        )
         inspection_data = request.model_dump_json(indent=2)
         try:
             response = self._client.responses.parse(
@@ -111,7 +115,7 @@ class OpenAIInspector:
             prompt_version=PROMPT_VERSION,
         )
 
-    def _load_image_data_url(self, image_ref: str) -> str:
+    def _load_image_data_url(self, image_ref: str, *, expected_sha256: str) -> str:
         image_path = (self._image_root / image_ref).resolve(strict=True)
         try:
             image_path.relative_to(self._image_root)
@@ -123,7 +127,12 @@ class OpenAIInspector:
             raise ValueError("inspection image must be JPEG, PNG, or WebP")
         if image_path.stat().st_size > MAX_IMAGE_BYTES:
             raise ValueError("inspection image exceeds the 10 MiB application limit")
-        image_bytes = image_path.read_bytes()
+        with image_path.open("rb") as image_file:
+            image_bytes = image_file.read(MAX_IMAGE_BYTES + 1)
+        if len(image_bytes) > MAX_IMAGE_BYTES:
+            raise ValueError("inspection image exceeds the 10 MiB application limit")
+        if sha256(image_bytes).hexdigest() != expected_sha256:
+            raise ValueError("inspection image hash does not match the request")
         encoded = base64.b64encode(image_bytes).decode("ascii")
         return f"data:{media_type};base64,{encoded}"
 

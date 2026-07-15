@@ -27,6 +27,7 @@ aggregate evidence trail.
 
 - One versioned SOP and repository-owned synthetic dataset.
 - Typed input, evidence, assessment, and result contracts.
+- Deterministic SOP/image fingerprints and versioned result provenance.
 - A deterministic offline provider for end-to-end demo and tests.
 - A GPT-5.6 Responses API provider behind the same interface.
 - A simple web UI that clearly separates model verdict, evidence, and human review.
@@ -54,6 +55,8 @@ aggregate evidence trail.
 6. Tests, lint, formatting, and strict type checking pass before public push.
 7. Grok receives only public docs and synthetic inputs; its findings are recorded
    separately and accepted changes are reimplemented in Codex with regression tests.
+8. Every result identifies the exact image and canonical SOP by SHA-256 and records
+   requested/effective model plus schema, prompt, and policy versions.
 
 ## Verification
 
