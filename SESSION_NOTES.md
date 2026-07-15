@@ -26,6 +26,7 @@ Inspection Copilot Build Week project.
 - Web vertical slice is green: the Streamlit workspace presents the image,
   automatic verdict, evidence/SOP link, and rationale-gated human review.
 - Public architecture and a non-coding Grok red-team packet are ready.
+- GitHub Actions mirrors the local Ruff, Mypy, and pytest quality gate.
 
 ## Verification
 
