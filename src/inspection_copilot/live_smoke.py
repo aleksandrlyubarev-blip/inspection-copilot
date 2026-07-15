@@ -130,6 +130,7 @@ def main(
     *,
     live_provider_factory: LiveProviderFactory = build_openai_inspector,
     clock: Callable[[], datetime] = lambda: datetime.now(UTC),
+    evidence_path: Path | None = None,
 ) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
@@ -140,11 +141,6 @@ def main(
         default=DemoScenario.BRIDGE_FAIL,
     )
     parser.add_argument(
-        "--evidence-path",
-        type=Path,
-        help="no-clobber output path; defaults inside the repository evidence directory",
-    )
-    parser.add_argument(
         "--confirm-one-live-request",
         action="store_true",
         help="authorize at most one OpenAI API request that may incur cost",
@@ -153,11 +149,11 @@ def main(
 
     if not args.confirm_one_live_request:
         parser.error("live smoke requires --confirm-one-live-request")
-    evidence_path = args.evidence_path or args.repo_root / DEFAULT_LIVE_EVIDENCE_RELATIVE_PATH
+    target_path = evidence_path or args.repo_root / DEFAULT_LIVE_EVIDENCE_RELATIVE_PATH
     try:
         receipt = run_live_smoke(
             repo_root=args.repo_root,
-            evidence_path=evidence_path,
+            evidence_path=target_path,
             live_provider_factory=live_provider_factory,
             scenario=args.scenario,
             clock=clock,

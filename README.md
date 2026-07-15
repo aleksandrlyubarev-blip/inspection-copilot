@@ -71,12 +71,12 @@ Timeout, rate limiting, provider unavailability, model refusal, and invalid
 structured output remain distinct states and become sanitized `needs_review`
 reasons.
 
-The default CLI and UI remain credential-free fixture flows. No live model call
-is performed by installation or tests; a cost-bounded live smoke remains a
-separate approval gate.
+The default CLI and UI remain credential-free fixture flows. Installation and
+tests never make a live model call. The separately approved smoke uses a
+dedicated one-request runner.
 
-The sanitized evidence contract for that future smoke is implemented, but no
-live-evidence file is committed or implied. It permits only a UTC timestamp,
+The sanitized evidence contract for that smoke is implemented. Until the runner
+is actually executed, no live-evidence file is committed or implied. It permits only a UTC timestamp,
 content-derived record/case IDs, provider and decision routing fields, model and
 workflow versions, and SOP/image fingerprints. It excludes raw case IDs, images,
 SOP bodies, model/assessment free text, response IDs, usage, and credentials.
@@ -86,18 +86,23 @@ first atomically published record.
 The case fingerprint is pseudonymous routing evidence, not anonymization; real
 customer identifiers remain outside the MVP and must not be supplied.
 
-The CLI exposes the live path only through two simultaneous opt-ins:
+The dedicated CLI exposes the live path only through explicit confirmation:
 
 ```bash
-inspection-copilot-demo \
+inspection-copilot-live-smoke \
   --repo-root . \
-  --provider openai \
-  --confirm-live-request
+  --confirm-one-live-request
 ```
 
 This command requires `OPENAI_API_KEY` in the process environment and performs
-one API request for the selected synthetic scenario. Do not run it merely to
-verify installation; use the fixture commands above for credential-free checks.
+at most one provider inspection for a built-in synthetic scenario. Before the
+provider is constructed, it atomically reserves the attempt and refuses an
+existing evidence file or reservation. Any typed provider failure is persisted
+without retry; an uncertain exception after the request boundary retains the
+reservation and requires manual review before any new authorization. The legacy
+`inspection-copilot-demo --provider openai --confirm-live-request` path routes
+through the same runner. Do not use either command merely to verify installation;
+use the fixture commands above for credential-free checks.
 
 Run the deterministic policy-level evaluation:
 

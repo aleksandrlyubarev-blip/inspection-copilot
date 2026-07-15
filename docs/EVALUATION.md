@@ -50,10 +50,12 @@ prompt/policy/schema versions, and SOP/image hashes. The prepared
 `LiveEvidenceRecord` adds provider status, decision routing, a SHA-256 case
 fingerprint, and a timezone-aware timestamp normalized to UTC whole seconds.
 
-A later, separately authorized smoke may create exactly one sanitized
-`evidence/live_validation_evidence.json`. The writer will not overwrite a
-different existing record and the smoke must not retry after auth, rate-limit,
-timeout, refusal, or schema failure. It must not store the raw case ID, image,
-SOP body, free-form response/assessment, response ID, usage details, or
-credentials. One live result validates only the integration boundary; it does
-not establish manufacturing accuracy.
+The separately authorized `inspection-copilot-live-smoke` runner may create
+exactly one sanitized `evidence/live_validation_evidence.json`. It reserves the
+attempt before provider construction, calls the provider once, and will not
+overwrite an occupied target or retry after auth, rate-limit, timeout, refusal,
+or schema failure. An uncertain post-request exception retains a fixed marker
+instead of silently permitting another attempt. The record must not store the
+raw case ID, image, SOP body, free-form response/assessment, response ID, usage
+details, or credentials. One live result validates only the integration
+boundary; it does not establish manufacturing accuracy.

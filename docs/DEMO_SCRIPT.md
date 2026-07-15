@@ -42,6 +42,6 @@ references are regression-tested to force `needs_review`.
 ## 2:45–3:00 — Build Week contribution
 
 Close on the architecture: Codex owns the implementation, tests, documentation,
-and commit history; GPT-5.6 will implement the bounded vision provider behind the
-same typed interface; Grok contributed only an independent public-material
+and commit history; GPT-5.6 runs behind a bounded one-request vision provider and
+typed evidence boundary; Grok contributed only an independent public-material
 red-team review whose accepted findings were reimplemented and tested in Codex.

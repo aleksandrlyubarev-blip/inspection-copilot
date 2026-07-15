@@ -29,7 +29,7 @@ aggregate evidence trail.
 - Typed input, evidence, assessment, and result contracts.
 - Deterministic SOP/image fingerprints and versioned result provenance.
 - A bounded, sanitized, deterministic local inspection ledger for audit evidence.
-- A no-clobber sanitized evidence contract prepared before any authorized live smoke.
+- A reserved, one-request live-smoke runner and no-clobber sanitized evidence contract.
 - A deterministic offline provider for end-to-end demo and tests.
 - A GPT-5.6 Responses API provider behind the same interface.
 - A simple web UI that clearly separates model verdict, evidence, and human review.
@@ -64,6 +64,9 @@ aggregate evidence trail.
 10. A live smoke can persist only the strict sanitized record; naive timestamps,
     tampered IDs, provider/result mismatch, and replacement of different evidence
     are rejected before any claim of validation is made.
+11. The runner binds evidence to the actual provider outcome, refuses an existing
+    evidence path or reservation before provider construction, and never retries
+    a typed or uncertain provider failure.
 
 ## Verification
 
@@ -75,6 +78,7 @@ aggregate evidence trail.
 
 ## Stop-lines
 
-- No live model request without a separately authorized, cost-bounded smoke.
+- No live model request without a separately authorized, cost-bounded smoke and
+  no second request without new approval.
 - No external reviewer receives secrets, real photos, or private SOPs.
 - No deployment or submission until local and browser gates pass.

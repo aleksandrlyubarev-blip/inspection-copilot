@@ -71,10 +71,10 @@ typed `ProviderOutcome`; the service produces a sanitized `needs_review`, not a
 fallback automatic verdict.
 
 The default CLI and UI do not select the adapter, and no live request is part of
-the test suite. The CLI requires both `--provider openai` and
-`--confirm-live-request` before it constructs the client; the selected scenario
-then makes exactly one provider inspection. The exact serialized HTTP payload is
-verified through a local mock transport.
+the test suite. `inspection-copilot-live-smoke` requires
+`--confirm-one-live-request`; the older demo live flags delegate to that same
+runner. The exact serialized HTTP payload is verified through a local mock
+transport.
 
 ## Result provenance
 
@@ -113,6 +113,21 @@ file; different existing evidence is a conflict. This prevents an accidental
 second smoke or race from overwriting the first record. The contract does not
 authorize an API request and no live evidence exists until the separately
 approved smoke succeeds or returns a typed provider failure.
+
+`InspectionExecution` binds the exact `ProviderOutcome` to the policy result
+derived from it, so the runner cannot supply a different status while building
+evidence. Before provider construction, the runner creates an atomic exclusive
+reservation beside the target and rejects any occupied target name, including a
+broken symbolic link. The reservation changes to a fixed
+`request-may-have-started` marker immediately before the single provider call.
+It is removed only after strict evidence is published. A typed provider failure
+is evidence and is never retried; an unexpected post-boundary exception leaves
+the marker in place and blocks another request pending explicit review.
+
+The reservation is a local single-host guard, not a distributed lock or a claim
+of automatic crash recovery. A stale marker is deliberately never cleared by
+the application because the process cannot prove whether a request crossed the
+network boundary; inspection and new approval are required.
 
 The SHA-256 case fingerprint is not an anonymization guarantee. The MVP accepts
 only repository-owned synthetic cases, and identifier-like metadata is restricted

@@ -93,6 +93,7 @@ def main(
     argv: Sequence[str] | None = None,
     *,
     live_provider_factory: LiveProviderFactory = build_openai_inspector,
+    live_evidence_path: Path | None = None,
 ) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
@@ -113,11 +114,6 @@ def main(
         action="store_true",
         help="authorize one OpenAI API request that may incur cost",
     )
-    parser.add_argument(
-        "--live-evidence-path",
-        type=Path,
-        help="no-clobber live evidence path; used only with the OpenAI provider",
-    )
     args = parser.parse_args(argv)
 
     if args.provider is DemoProvider.OPENAI:
@@ -128,9 +124,7 @@ def main(
             run_live_smoke,
         )
 
-        evidence_path = (
-            args.live_evidence_path or args.repo_root / DEFAULT_LIVE_EVIDENCE_RELATIVE_PATH
-        )
+        evidence_path = live_evidence_path or args.repo_root / DEFAULT_LIVE_EVIDENCE_RELATIVE_PATH
         try:
             receipt = run_live_smoke(
                 repo_root=args.repo_root,

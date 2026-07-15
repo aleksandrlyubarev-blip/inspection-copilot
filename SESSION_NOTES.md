@@ -2,8 +2,8 @@
 
 ## Current goal
 
-Prepare the strict sanitized live-evidence contract before requesting approval
-for exactly one cost-bounded GPT-5.6 smoke.
+Bind the actual provider outcome to sanitized evidence and execute at most one
+authorized, cost-bounded GPT-5.6 smoke on repository-owned synthetic data.
 
 ## Decisions
 
@@ -60,6 +60,11 @@ for exactly one cost-bounded GPT-5.6 smoke.
   It records only provider/result routing metadata, UTC time, and fingerprints;
   exact replay is a byte-identical no-op and different evidence cannot overwrite
   the first atomically published record.
+- `InspectionExecution` now binds a single actual `ProviderOutcome` to the policy
+  result derived from it. The dedicated live-smoke CLI reserves the attempt
+  before provider construction, rejects occupied/broken-symlink evidence names,
+  makes one provider invocation, and persists success or typed failure without
+  retry. Uncertain post-boundary exceptions retain a fixed reservation marker.
 
 ## Verification
 
@@ -120,11 +125,21 @@ for exactly one cost-bounded GPT-5.6 smoke.
   tightened all model/workflow metadata to identifier-only values and expanded
   exact failure-reason coverage to every non-success provider status. No live
   request or live-evidence artifact was produced.
+- Goal 2 readiness gate: 17 focused live-smoke cases plus legacy CLI routing
+  prove single invocation, all typed failure states, preflight ordering,
+  reservation behavior, broken-symlink rejection, sanitized output, and marker
+  retention after an uncertain boundary failure. Ruff, format, strict Mypy, all
+  94 tests, `pip check`, and the installed CLI dry guard pass without an API call.
+- The degraded adversarial pre-request review found and fixed two request-budget
+  bypasses: broken evidence symlinks were not treated as occupied, and a public
+  output-path override could create multiple independent targets. The public CLI
+  now has one fixed per-repository target. The remaining local marker is
+  intentionally fail-closed rather than auto-recovered after an uncertain crash.
 
 ## Next steps
 
 1. Complete Devpost join after the user login takeover.
-2. Run a separately authorized, cost-bounded live model smoke.
-3. Persist the single sanitized live-evidence record only through the prepared
-   no-clobber writer after that smoke.
-4. Expose the live result in the UI only after the CLI smoke is validated.
+2. Complete the adversarial pre-request review and run the authorized one-request
+   live smoke if `OPENAI_API_KEY` is present.
+3. Strictly validate and commit only the sanitized evidence record.
+4. Expose the validated live result in the UI in a later goal.

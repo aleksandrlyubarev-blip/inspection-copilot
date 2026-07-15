@@ -260,6 +260,14 @@ def test_live_smoke_cli_requires_confirmation_before_factory(capsys: Any) -> Non
     assert "--confirm-one-live-request" in capsys.readouterr().err
 
 
+def test_live_smoke_cli_rejects_output_path_override(capsys: Any) -> None:
+    with pytest.raises(SystemExit) as error:
+        main(["--evidence-path", "somewhere-else.json"])
+
+    assert error.value.code == 2
+    assert "unrecognized arguments: --evidence-path" in capsys.readouterr().err
+
+
 def test_confirmed_cli_emits_only_sanitized_receipt(tmp_path: Path, capsys: Any) -> None:
     evidence_path = tmp_path / "live_validation_evidence.json"
     provider = OutcomeInspector(_success_outcome())
@@ -268,12 +276,11 @@ def test_confirmed_cli_emits_only_sanitized_receipt(tmp_path: Path, capsys: Any)
         [
             "--repo-root",
             str(REPO_ROOT),
-            "--evidence-path",
-            str(evidence_path),
             "--confirm-one-live-request",
         ],
         live_provider_factory=lambda *, image_root: provider,
         clock=lambda: RECORDED_AT,
+        evidence_path=evidence_path,
     )
 
     output = capsys.readouterr().out
@@ -303,12 +310,11 @@ def test_cli_sanitizes_post_boundary_failure_and_retains_reservation(
             [
                 "--repo-root",
                 str(REPO_ROOT),
-                "--evidence-path",
-                str(evidence_path),
                 "--confirm-one-live-request",
             ],
             live_provider_factory=lambda *, image_root: provider,
             clock=lambda: RECORDED_AT,
+            evidence_path=evidence_path,
         )
 
     stderr = capsys.readouterr().err

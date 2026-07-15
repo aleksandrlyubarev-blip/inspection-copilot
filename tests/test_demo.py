@@ -135,10 +135,9 @@ def test_confirmed_live_cli_routes_through_one_request_runner(
             "--provider",
             "openai",
             "--confirm-live-request",
-            "--live-evidence-path",
-            str(evidence_path),
         ],
         live_provider_factory=fixture_factory,
+        live_evidence_path=evidence_path,
     )
 
     assert image_roots == [(REPO_ROOT / "examples" / "synthetic").resolve()]
@@ -166,10 +165,9 @@ def test_live_cli_sanitizes_provider_construction_error(
                 "--provider",
                 "openai",
                 "--confirm-live-request",
-                "--live-evidence-path",
-                str(evidence_path),
             ],
             live_provider_factory=unavailable_factory,
+            live_evidence_path=evidence_path,
         )
 
     stderr = capsys.readouterr().err
