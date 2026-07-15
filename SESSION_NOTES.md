@@ -50,6 +50,8 @@ Inspection Copilot Build Week project.
 - A typed local ledger contract now derives content-addressed entries from only
   sanitized result metadata. Exact replays are byte-identical no-ops; ledger
   size/count are bounded and updates use same-directory atomic replacement.
+- The Streamlit workspace exposes the result's sanitized provenance in a native
+  JSON audit panel; it does not pass provenance fields through custom HTML.
 
 ## Verification
 
@@ -93,6 +95,8 @@ Inspection Copilot Build Week project.
 - Ledger-contract gate: 9 focused tests cover sanitization, deterministic IDs,
   duplicate no-op behavior, ordered append, tamper/duplicate rejection, size and
   count bounds, missing parents, atomic failure recovery, and strict read-back.
+- UI provenance gate: 7 Streamlit AppTests pass, including structured equality
+  between the audit panel and the typed `InspectionResult.provenance` record.
 
 ## Next steps
 

@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from streamlit.testing.v1 import AppTest
@@ -50,6 +51,15 @@ def test_ambiguous_scenario_prominently_escalates() -> None:
 
     assert any("NEEDS_REVIEW" in item.value for item in app.markdown)
     assert any(button.label == "Escalate to human review" for button in app.button)
+
+
+def test_ui_exposes_structured_audit_provenance() -> None:
+    app = _app()
+    expected = run_demo(REPO_ROOT).provenance.model_dump(mode="json")
+
+    assert any(expander.label == "Audit provenance" for expander in app.expander)
+    assert len(app.json) == 1
+    assert json.loads(app.json[0].value) == expected
 
 
 def test_human_review_does_not_leak_between_cases() -> None:

@@ -139,6 +139,10 @@ def render(repo_root: Path) -> None:
             st.write(f"Accept: {rule.acceptance}")
             st.write(f"Reject: {rule.rejection}")
 
+    with st.expander("Audit provenance"):
+        st.caption("Sanitized workflow versions and input fingerprints for this result.")
+        st.json(result.provenance.model_dump(mode="json"), expanded=False)
+
     st.markdown("### Human review")
     st.caption("The model result remains unchanged; this records a separate operator decision.")
     review_decision = st.selectbox(
