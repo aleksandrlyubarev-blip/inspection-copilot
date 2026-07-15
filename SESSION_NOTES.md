@@ -27,6 +27,9 @@ Inspection Copilot Build Week project.
   automatic verdict, evidence/SOP link, and rationale-gated human review.
 - Public architecture and a non-coding Grok red-team packet are ready.
 - GitHub Actions mirrors the local Ruff, Mypy, and pytest quality gate.
+- Grok completed a non-coding public-material red-team review with seven findings.
+  Codex accepted GROK-01 through GROK-05, deferred GROK-06, and rejected the
+  arbitrary evidence-count proposal in GROK-07.
 
 ## Verification
 
