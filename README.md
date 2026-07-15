@@ -82,6 +82,15 @@ This command requires `OPENAI_API_KEY` in the process environment and performs
 one API request for the selected synthetic scenario. Do not run it merely to
 verify installation; use the fixture commands above for credential-free checks.
 
+Run the deterministic policy-level evaluation:
+
+```bash
+inspection-copilot-eval --repo-root .
+```
+
+The committed report is a workflow regression baseline, not a claim about model
+or manufacturing accuracy.
+
 ## Local quality gate
 
 ```bash
@@ -102,6 +111,7 @@ pytest -q
 ## Architecture and external review
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [Evaluation ledger](docs/EVALUATION.md)
 - [Three-minute demo script](docs/DEMO_SCRIPT.md)
 - [Grok red-team packet](docs/GROK_REVIEW_PACKET.md)
 - [Grok review and Codex triage](docs/reviews/GROK_RED_TEAM_2026-07-15.md)

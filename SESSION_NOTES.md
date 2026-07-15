@@ -37,6 +37,8 @@ Inspection Copilot Build Week project.
   interface. Default CLI/UI execution remains offline and credential-free.
 - The CLI live path requires the explicit pair `--provider openai` and
   `--confirm-live-request`; without both, it does not construct the live provider.
+- A deterministic evaluation command and committed offline ledger now track
+  policy matches and escalation rate without making model-accuracy claims.
 
 ## Verification
 
@@ -64,10 +66,14 @@ Inspection Copilot Build Week project.
   provider construction and the confirmed path performs one inspection. The
   credential-construction error is sanitized. The 30-test full suite, Ruff,
   strict Mypy, and dependency check pass.
+- Evaluation gate: 4 focused tests verify deterministic and internally consistent
+  metrics, schema-valid CLI output, and exact agreement between the committed
+  ledger and a fresh run. The current baseline is 2/2 policy matches with one
+  escalation; the 34-test full suite is green.
 
 ## Next steps
 
 1. Complete Devpost join after the user login takeover.
 2. Run a separately authorized, cost-bounded live model smoke.
-3. Add a small evaluation ledger for fixture and live results.
+3. Extend the ledger with sanitized live evidence after that smoke.
 4. Expose the live result in the UI only after the CLI smoke is validated.
