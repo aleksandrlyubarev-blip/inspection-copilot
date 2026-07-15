@@ -1,0 +1,15 @@
+{
+  "proposed_decision": "fail",
+  "image_quality": "adequate",
+  "evidence": [
+    {
+      "observation": "A continuous metallic path joins two adjacent pads.",
+      "location": "U1 pins 3-4",
+      "sop_rule_id": "SOLDER-BRIDGE-001",
+      "supports": "fail"
+    }
+  ],
+  "unknown_defect": false,
+  "confidence": 0.94,
+  "summary": "Visible bridge conflicts with the rejection rule."
+}

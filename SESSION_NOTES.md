@@ -21,6 +21,8 @@ Inspection Copilot Build Week project.
 - Bootstrap/spec is the first local Codex-authored slice.
 - Contract/policy TDD slice is green: strict SOP/evidence/result schemas and
   deterministic fail-closed reasons are implemented from scratch.
+- Offline vertical slice is green: synthetic SOP/case/assessment/PNG flow runs
+  through an injected fixture provider and emits a schema-valid JSON verdict.
 
 ## Verification
 
@@ -30,9 +32,12 @@ Inspection Copilot Build Week project.
   and `git diff --check` pass.
 - Contract/policy gate: 9 focused tests and 10 full tests pass; Ruff and strict
   Mypy pass for three source files.
+- Offline vertical gate: 3 focused tests and 13 full tests pass; the CLI JSON is
+  valid, `pip check` passes, and regenerated PNG SHA-256 remains
+  `46276da8d0052df523e3af09b01cdfc7c1b42b2fa1cea4be4c580ec64d70bdca`.
 
 ## Next steps
 
-1. Commit the green contract/policy slice on `agent/vertical-scaffold`.
-2. Build the deterministic fixture-backed CLI through a failing end-to-end test.
-3. Add the local web experience and browser smoke.
+1. Commit and publish the deterministic offline vertical slice.
+2. Add the local web experience and browser smoke.
+3. Add the bounded GPT-5.6 request contract behind the provider interface.

@@ -13,6 +13,7 @@ from inspection_copilot.domain import (
     SOPRule,
 )
 from inspection_copilot.policy import MIN_AUTOMATIC_CONFIDENCE, finalize_assessment
+from inspection_copilot.service import FixtureInspector, Inspector, run_inspection
 
 __version__ = "0.1.0"
 
@@ -21,13 +22,16 @@ __all__ = [
     "Assessment",
     "Decision",
     "Evidence",
+    "FixtureInspector",
     "ImageQuality",
     "InspectionCase",
     "InspectionRequest",
     "InspectionResult",
+    "Inspector",
     "ReviewReason",
     "SOP",
     "SOPRule",
     "__version__",
     "finalize_assessment",
+    "run_inspection",
 ]

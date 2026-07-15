@@ -10,9 +10,9 @@ human instead of being hidden behind model confidence.
 
 ## Build Week status
 
-This is a new standalone repository created during Build Week. The first target
-is a credential-free synthetic mock flow; the GPT-5.6 Responses API adapter and
-web experience follow behind the same typed contract.
+This is a new standalone repository created during Build Week. Its first
+credential-free synthetic mock flow is runnable now; the GPT-5.6 Responses API
+adapter and web experience follow behind the same typed contract.
 
 - Codex owns architecture, implementation, tests, documentation, and commits.
 - GPT-5.6 runtime will analyze images and return strict structured assessments.
@@ -20,7 +20,22 @@ web experience follow behind the same typed contract.
   reviewer of public documentation and synthetic scenarios.
 - No application code is copied from prior RoboQC, Claude, or Grok work.
 
-## Planned local checks
+## Run the synthetic mock flow
+
+```bash
+python -m pip install -e '.[dev]'
+inspection-copilot-demo --repo-root .
+```
+
+The command reads only repository-owned synthetic fixtures and emits a strict
+JSON result. It does not read API credentials or access the network. Regenerate
+the deterministic demo image with:
+
+```bash
+python scripts/generate_synthetic_demo.py
+```
+
+## Local quality gate
 
 ```bash
 python -m pip install -e '.[dev]'
@@ -29,8 +44,6 @@ ruff format --check .
 mypy
 pytest -q
 ```
-
-The runnable mock command will be documented once its first TDD slice is green.
 
 ## Official platform references
 

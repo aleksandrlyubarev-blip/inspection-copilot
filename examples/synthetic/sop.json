@@ -1,0 +1,13 @@
+{
+  "sop_id": "IPC-DEMO-001",
+  "version": "1.0",
+  "title": "Synthetic SMT solder inspection",
+  "rules": [
+    {
+      "rule_id": "SOLDER-BRIDGE-001",
+      "description": "Adjacent pads must not be electrically bridged.",
+      "acceptance": "Visible separation exists between adjacent pads.",
+      "rejection": "A continuous solder path connects adjacent pads."
+    }
+  ]
+}

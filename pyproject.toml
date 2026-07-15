@@ -12,9 +12,13 @@ license = { text = "MIT" }
 authors = [{ name = "Aleksandr Lyubarev" }]
 dependencies = [
   "openai>=2.45,<3",
+  "pillow>=10,<13",
   "pydantic>=2.10,<3",
   "streamlit>=1.35,<2",
 ]
+
+[project.scripts]
+inspection-copilot-demo = "inspection_copilot.demo:main"
 
 [project.optional-dependencies]
 dev = [
