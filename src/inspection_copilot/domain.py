@@ -28,6 +28,20 @@ class ReviewReason(StrEnum):
     LOW_CONFIDENCE = "low_confidence"
     INVALID_SOP_REFERENCE = "invalid_sop_reference"
     EVIDENCE_CONFLICT = "evidence_conflict"
+    PROVIDER_TIMEOUT = "provider_timeout"
+    PROVIDER_RATE_LIMITED = "provider_rate_limited"
+    PROVIDER_UNAVAILABLE = "provider_unavailable"
+    MODEL_REFUSAL = "model_refusal"
+    INVALID_PROVIDER_OUTPUT = "invalid_provider_output"
+
+
+class ProviderStatus(StrEnum):
+    SUCCESS = "success"
+    TIMEOUT = "timeout"
+    RATE_LIMITED = "rate_limited"
+    UNAVAILABLE = "unavailable"
+    REFUSAL = "refusal"
+    INVALID_OUTPUT = "invalid_output"
 
 
 class StrictModel(BaseModel):
@@ -94,6 +108,32 @@ class Assessment(StrictModel):
     summary: str = Field(min_length=1)
 
 
+class ProviderOutcome(StrictModel):
+    status: ProviderStatus
+    assessment: Assessment | None
+    requested_model: str = Field(min_length=1)
+    effective_model: str | None
+    prompt_version: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def require_status_consistency(self) -> Self:
+        if self.status is ProviderStatus.SUCCESS:
+            if self.assessment is None or self.effective_model is None:
+                raise ValueError("success requires assessment and effective_model")
+            return self
+        if self.assessment is not None:
+            raise ValueError("provider failure cannot include an assessment")
+        return self
+
+    @property
+    def retryable(self) -> bool:
+        return self.status in {
+            ProviderStatus.TIMEOUT,
+            ProviderStatus.RATE_LIMITED,
+            ProviderStatus.UNAVAILABLE,
+        }
+
+
 class InspectionResult(StrictModel):
     case_id: str = Field(min_length=1)
     final_decision: Decision
@@ -126,6 +166,8 @@ __all__ = [
     "InspectionCase",
     "InspectionRequest",
     "InspectionResult",
+    "ProviderOutcome",
+    "ProviderStatus",
     "ReviewReason",
     "SOP",
     "SOPRule",

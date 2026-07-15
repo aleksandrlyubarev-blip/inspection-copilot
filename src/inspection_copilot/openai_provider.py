@@ -5,12 +5,13 @@ from __future__ import annotations
 import base64
 from pathlib import Path
 
-from openai import OpenAI, OpenAIError
+from openai import APITimeoutError, OpenAI, OpenAIError, RateLimitError
 from pydantic import ValidationError
 
-from inspection_copilot.domain import Assessment, Decision, ImageQuality, InspectionRequest
+from inspection_copilot.domain import Assessment, InspectionRequest, ProviderOutcome, ProviderStatus
 
 DEFAULT_MODEL = "gpt-5.6"
+PROMPT_VERSION = "inspection-v1"
 REQUEST_TIMEOUT_SECONDS = 60.0
 MAX_OUTPUT_TOKENS = 2000
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
@@ -43,7 +44,7 @@ class OpenAIInspector:
         self._image_root = image_root.resolve(strict=True)
         self.model = model
 
-    def inspect(self, request: InspectionRequest) -> Assessment:
+    def inspect(self, request: InspectionRequest) -> ProviderOutcome:
         image_data_url = self._load_image_data_url(request.case.image_ref)
         inspection_data = request.model_dump_json(indent=2)
         try:
@@ -72,12 +73,43 @@ class OpenAIInspector:
                 store=False,
                 timeout=REQUEST_TIMEOUT_SECONDS,
             )
-        except (OpenAIError, ValidationError):
-            return _sanitized_review_assessment()
+        except APITimeoutError:
+            return self._failure_outcome(ProviderStatus.TIMEOUT)
+        except RateLimitError:
+            return self._failure_outcome(ProviderStatus.RATE_LIMITED)
+        except ValidationError:
+            return self._failure_outcome(ProviderStatus.INVALID_OUTPUT)
+        except OpenAIError:
+            return self._failure_outcome(ProviderStatus.UNAVAILABLE)
 
         if response.output_parsed is None:
-            return _sanitized_review_assessment()
-        return response.output_parsed
+            status = (
+                ProviderStatus.REFUSAL
+                if _response_contains_refusal(response)
+                else ProviderStatus.INVALID_OUTPUT
+            )
+            return self._failure_outcome(status, effective_model=response.model)
+        return ProviderOutcome(
+            status=ProviderStatus.SUCCESS,
+            assessment=response.output_parsed,
+            requested_model=self.model,
+            effective_model=response.model,
+            prompt_version=PROMPT_VERSION,
+        )
+
+    def _failure_outcome(
+        self,
+        status: ProviderStatus,
+        *,
+        effective_model: str | None = None,
+    ) -> ProviderOutcome:
+        return ProviderOutcome(
+            status=status,
+            assessment=None,
+            requested_model=self.model,
+            effective_model=effective_model,
+            prompt_version=PROMPT_VERSION,
+        )
 
     def _load_image_data_url(self, image_ref: str) -> str:
         image_path = (self._image_root / image_ref).resolve(strict=True)
@@ -96,15 +128,12 @@ class OpenAIInspector:
         return f"data:{media_type};base64,{encoded}"
 
 
-def _sanitized_review_assessment() -> Assessment:
-    return Assessment(
-        proposed_decision=Decision.NEEDS_REVIEW,
-        image_quality=ImageQuality.UNUSABLE,
-        evidence=[],
-        unknown_defect=False,
-        confidence=0.0,
-        summary="Inspection provider did not return a valid assessment.",
-    )
+def _response_contains_refusal(response: object) -> bool:
+    for item in getattr(response, "output", ()):
+        for content in getattr(item, "content", ()):
+            if getattr(content, "type", None) == "refusal":
+                return True
+    return False
 
 
 def build_openai_inspector(
@@ -127,6 +156,7 @@ __all__ = [
     "DEFAULT_MODEL",
     "MAX_IMAGE_BYTES",
     "MAX_OUTPUT_TOKENS",
+    "PROMPT_VERSION",
     "REQUEST_TIMEOUT_SECONDS",
     "OpenAIInspector",
     "build_openai_inspector",

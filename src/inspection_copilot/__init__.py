@@ -9,6 +9,8 @@ from inspection_copilot.domain import (
     InspectionCase,
     InspectionRequest,
     InspectionResult,
+    ProviderOutcome,
+    ProviderStatus,
     ReviewReason,
     SOPRule,
 )
@@ -28,6 +30,8 @@ __all__ = [
     "InspectionRequest",
     "InspectionResult",
     "Inspector",
+    "ProviderOutcome",
+    "ProviderStatus",
     "ReviewReason",
     "SOP",
     "SOPRule",

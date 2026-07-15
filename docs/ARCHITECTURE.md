@@ -17,7 +17,9 @@ Synthetic image + versioned SOP
         └─ GPT-5.6 Responses provider (bounded live adapter)
               │
               ▼
-          Assessment
+       ProviderOutcome
+        ├─ success + Assessment
+        └─ typed provider failure
               │
               ▼
   deterministic fail-closed policy
@@ -37,6 +39,9 @@ Synthetic image + versioned SOP
   quality, consistent evidence direction, and confidence at or above the policy
   threshold.
 - Any failed gate returns `needs_review`; the UI does not reinterpret the result.
+- Timeout, rate limit, provider unavailability, model refusal, and invalid
+  structured output are distinct provider states. The service converts each to
+  a sanitized `needs_review` reason without exposing exception text.
 - Human review is stored separately and cannot rewrite the fixture/model record.
 - Case, model, and evidence fields are HTML-escaped before entering the small
   `unsafe_allow_html` presentation templates.
@@ -56,7 +61,8 @@ strict JSON Schema output. The request boundary sets `model=gpt-5.6`,
 `store=false`, no automatic retries, medium reasoning effort, a 60-second
 timeout, and a 2,000-token output limit. It validates local image containment,
 format, and size before sending a request. Model/API/schema failures produce a
-sanitized `needs_review`, not a fallback automatic verdict.
+typed `ProviderOutcome`; the service produces a sanitized `needs_review`, not a
+fallback automatic verdict.
 
 The default CLI and UI do not select the adapter, and no live request is part of
 the test suite. The CLI requires both `--provider openai` and

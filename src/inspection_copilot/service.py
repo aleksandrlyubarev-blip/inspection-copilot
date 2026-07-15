@@ -4,14 +4,33 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from inspection_copilot.domain import Assessment, InspectionRequest, InspectionResult
+from inspection_copilot.domain import (
+    Assessment,
+    Decision,
+    ImageQuality,
+    InspectionRequest,
+    InspectionResult,
+    ProviderOutcome,
+    ProviderStatus,
+    ReviewReason,
+)
 from inspection_copilot.policy import finalize_assessment
+
+FIXTURE_PROMPT_VERSION = "fixture-v1"
+
+_PROVIDER_REVIEW_REASONS = {
+    ProviderStatus.TIMEOUT: ReviewReason.PROVIDER_TIMEOUT,
+    ProviderStatus.RATE_LIMITED: ReviewReason.PROVIDER_RATE_LIMITED,
+    ProviderStatus.UNAVAILABLE: ReviewReason.PROVIDER_UNAVAILABLE,
+    ProviderStatus.REFUSAL: ReviewReason.MODEL_REFUSAL,
+    ProviderStatus.INVALID_OUTPUT: ReviewReason.INVALID_PROVIDER_OUTPUT,
+}
 
 
 class Inspector(Protocol):
     model: str
 
-    def inspect(self, request: InspectionRequest) -> Assessment: ...
+    def inspect(self, request: InspectionRequest) -> ProviderOutcome: ...
 
 
 class FixtureInspector:
@@ -22,8 +41,14 @@ class FixtureInspector:
     def __init__(self, assessment: Assessment) -> None:
         self._assessment = assessment.model_copy(deep=True)
 
-    def inspect(self, request: InspectionRequest) -> Assessment:
-        return self._assessment.model_copy(deep=True)
+    def inspect(self, request: InspectionRequest) -> ProviderOutcome:
+        return ProviderOutcome(
+            status=ProviderStatus.SUCCESS,
+            assessment=self._assessment.model_copy(deep=True),
+            requested_model=self.model,
+            effective_model=self.model,
+            prompt_version=FIXTURE_PROMPT_VERSION,
+        )
 
 
 def run_inspection(
@@ -31,8 +56,30 @@ def run_inspection(
     *,
     provider: Inspector,
 ) -> InspectionResult:
-    assessment = provider.inspect(request)
-    return finalize_assessment(request, assessment, model=provider.model)
+    outcome = provider.inspect(request)
+    if outcome.assessment is None:
+        assessment = _provider_failure_assessment()
+        additional_reasons = [_PROVIDER_REVIEW_REASONS[outcome.status]]
+    else:
+        assessment = outcome.assessment
+        additional_reasons = []
+    return finalize_assessment(
+        request,
+        assessment,
+        model=outcome.requested_model,
+        additional_review_reasons=additional_reasons,
+    )
 
 
-__all__ = ["FixtureInspector", "Inspector", "run_inspection"]
+def _provider_failure_assessment() -> Assessment:
+    return Assessment(
+        proposed_decision=Decision.NEEDS_REVIEW,
+        image_quality=ImageQuality.UNUSABLE,
+        evidence=[],
+        unknown_defect=False,
+        confidence=0.0,
+        summary="Inspection provider did not return a valid assessment.",
+    )
+
+
+__all__ = ["FIXTURE_PROMPT_VERSION", "FixtureInspector", "Inspector", "run_inspection"]

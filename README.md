@@ -11,11 +11,11 @@ human instead of being hidden behind model confidence.
 ## Build Week status
 
 This is a new standalone repository created during Build Week. Its first
-credential-free synthetic mock flow is runnable now; the GPT-5.6 Responses API
-adapter and web experience follow behind the same typed contract.
+credential-free synthetic mock flow, GPT-5.6 Responses API adapter, and web
+experience are runnable behind the same typed contract.
 
 - Codex owns architecture, implementation, tests, documentation, and commits.
-- GPT-5.6 runtime will analyze images and return strict structured assessments.
+- GPT-5.6 runtime analyzes images and returns strict structured assessments.
 - Grok participates only after the working mock flow as an external red-team
   reviewer of public documentation and synthetic scenarios.
 - No application code is copied from prior RoboQC, Claude, or Grok work.
@@ -62,8 +62,10 @@ The typed provider adapter is implemented behind the same `Inspector` interface
 used by the offline fixture. Its mock-transport tests verify the serialized
 Responses API boundary: `model=gpt-5.6`, high-detail image input, strict JSON
 Schema output, `store=false`, a 60-second timeout, 2,000 output tokens, and zero
-automatic SDK retries. Provider or schema failures become a sanitized
-`needs_review` assessment.
+automatic SDK retries. The adapter returns an explicit `ProviderOutcome`.
+Timeout, rate limiting, provider unavailability, model refusal, and invalid
+structured output remain distinct states and become sanitized `needs_review`
+reasons.
 
 The default CLI and UI remain credential-free fixture flows. No live model call
 is performed by installation or tests; a cost-bounded live smoke remains a

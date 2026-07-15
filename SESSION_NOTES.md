@@ -41,6 +41,9 @@ Inspection Copilot Build Week project.
   policy matches and escalation rate without making model-accuracy claims.
 - Untrusted case, model, summary, location, observation, and SOP-reference fields
   are HTML-escaped before custom Streamlit rendering.
+- The provider boundary returns a validated `ProviderOutcome` instead of a bare
+  assessment. Timeout, rate limit, unavailability, refusal, and invalid output
+  remain distinct fail-closed reasons; raw exception details are not returned.
 
 ## Verification
 
@@ -74,6 +77,9 @@ Inspection Copilot Build Week project.
   escalation; the 34-test full suite is green.
 - UI trust-boundary gate: a malicious-markup regression test verifies escaping
   before custom HTML rendering; 6 focused UI tests and the 35-test full suite pass.
+- Provider-outcome gate: 11 focused tests cover success, the real SDK schema
+  boundary, timeout, rate limit, unavailability, refusal, invalid output, and
+  contract validation. Ruff, strict Mypy, all 39 tests, and `pip check` pass.
 
 ## Next steps
 

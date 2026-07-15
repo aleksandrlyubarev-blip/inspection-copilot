@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from inspection_copilot.domain import (
     Assessment,
     Decision,
@@ -19,10 +21,11 @@ def finalize_assessment(
     assessment: Assessment,
     *,
     model: str,
+    additional_review_reasons: Sequence[ReviewReason] = (),
 ) -> InspectionResult:
     """Apply deterministic evidence gates to one model or fixture assessment."""
 
-    reasons: list[ReviewReason] = []
+    reasons = list(additional_review_reasons)
     if assessment.proposed_decision is Decision.NEEDS_REVIEW:
         reasons.append(ReviewReason.MODEL_REQUESTED_REVIEW)
     if assessment.image_quality is not ImageQuality.ADEQUATE:

@@ -5,10 +5,17 @@ from typing import Any, cast
 
 import httpx
 import pytest
-from openai import DefaultHttpxClient, OpenAI, OpenAIError
+from openai import APITimeoutError, DefaultHttpxClient, OpenAI, OpenAIError, RateLimitError
+from pydantic import ValidationError
 
 from inspection_copilot.demo import load_demo_request
-from inspection_copilot.domain import Assessment, Decision, InspectionRequest
+from inspection_copilot.domain import (
+    Assessment,
+    Decision,
+    ProviderOutcome,
+    ProviderStatus,
+    ReviewReason,
+)
 from inspection_copilot.openai_provider import (
     MAX_IMAGE_BYTES,
     OpenAIInspector,
@@ -26,16 +33,24 @@ class FakeResponses:
         *,
         parsed: Assessment | None = None,
         error: Exception | None = None,
+        effective_model: str = "gpt-5.6-sol",
+        output: list[Any] | None = None,
     ) -> None:
         self.parsed = parsed
         self.error = error
+        self.effective_model = effective_model
+        self.output = output or []
         self.calls: list[dict[str, Any]] = []
 
     def parse(self, **kwargs: Any) -> SimpleNamespace:
         self.calls.append(kwargs)
         if self.error:
             raise self.error
-        return SimpleNamespace(output_parsed=self.parsed)
+        return SimpleNamespace(
+            output_parsed=self.parsed,
+            model=self.effective_model,
+            output=self.output,
+        )
 
 
 def _client(responses: FakeResponses) -> OpenAI:
@@ -52,9 +67,13 @@ def test_provider_sends_bounded_strict_vision_request() -> None:
     responses = FakeResponses(parsed=_assessment())
     provider = OpenAIInspector(client=_client(responses), image_root=IMAGE_ROOT)
 
-    assessment = provider.inspect(load_demo_request(REPO_ROOT))
+    outcome = provider.inspect(load_demo_request(REPO_ROOT))
 
-    assert assessment == _assessment()
+    assert outcome.status is ProviderStatus.SUCCESS
+    assert outcome.assessment == _assessment()
+    assert outcome.requested_model == "gpt-5.6"
+    assert outcome.effective_model == "gpt-5.6-sol"
+    assert outcome.prompt_version == "inspection-v1"
     assert len(responses.calls) == 1
     call = responses.calls[0]
     assert call["model"] == "gpt-5.6"
@@ -68,6 +87,9 @@ def test_provider_sends_bounded_strict_vision_request() -> None:
     assert image_input["type"] == "input_image"
     assert image_input["detail"] == "high"
     assert image_input["image_url"].startswith("data:image/png;base64,")
+
+    result = run_inspection(load_demo_request(REPO_ROOT), provider=provider)
+    assert result.model == "gpt-5.6"
 
 
 def test_sdk_serializes_strict_schema_at_http_boundary() -> None:
@@ -122,9 +144,11 @@ def test_sdk_serializes_strict_schema_at_http_boundary() -> None:
     http_client = DefaultHttpxClient(transport=httpx.MockTransport(handler))
     with OpenAI(api_key="test-key", max_retries=0, http_client=http_client) as client:
         provider = OpenAIInspector(client=client, image_root=IMAGE_ROOT)
-        assessment = provider.inspect(load_demo_request(REPO_ROOT))
+        outcome = provider.inspect(load_demo_request(REPO_ROOT))
 
-    assert assessment == _assessment()
+    assert outcome.status is ProviderStatus.SUCCESS
+    assert outcome.assessment == _assessment()
+    assert outcome.effective_model == "gpt-5.6"
     assert captured["model"] == "gpt-5.6"
     assert captured["store"] is False
     assert captured["max_output_tokens"] == 2000
@@ -165,7 +189,7 @@ def test_provider_rejects_image_path_escape_before_request(tmp_path: Path) -> No
     provider = OpenAIInspector(client=_client(responses), image_root=image_root)
 
     with pytest.raises(ValueError, match="inside the configured image root"):
-        provider.inspect(cast(InspectionRequest, request))
+        provider.inspect(request)
 
     assert responses.calls == []
 
@@ -180,23 +204,60 @@ def test_provider_rejects_oversized_image_before_request(tmp_path: Path) -> None
     provider = OpenAIInspector(client=_client(responses), image_root=image_root)
 
     with pytest.raises(ValueError, match="10 MiB"):
-        provider.inspect(cast(InspectionRequest, request))
+        provider.inspect(request)
 
     assert responses.calls == []
 
 
 @pytest.mark.parametrize(
-    "responses",
+    ("responses", "expected_status", "expected_reason"),
     [
-        FakeResponses(parsed=None),
-        FakeResponses(error=OpenAIError("private provider detail")),
+        (
+            FakeResponses(parsed=None),
+            ProviderStatus.INVALID_OUTPUT,
+            ReviewReason.INVALID_PROVIDER_OUTPUT,
+        ),
+        (
+            FakeResponses(error=OpenAIError("private provider detail")),
+            ProviderStatus.UNAVAILABLE,
+            ReviewReason.PROVIDER_UNAVAILABLE,
+        ),
+        (
+            FakeResponses(
+                error=APITimeoutError(httpx.Request("POST", "https://api.openai.com/v1/responses"))
+            ),
+            ProviderStatus.TIMEOUT,
+            ReviewReason.PROVIDER_TIMEOUT,
+        ),
+        (
+            FakeResponses(
+                error=RateLimitError(
+                    "private rate-limit detail",
+                    response=httpx.Response(
+                        429,
+                        request=httpx.Request("POST", "https://api.openai.com/v1/responses"),
+                    ),
+                    body=None,
+                )
+            ),
+            ProviderStatus.RATE_LIMITED,
+            ReviewReason.PROVIDER_RATE_LIMITED,
+        ),
     ],
 )
-def test_provider_failure_becomes_sanitized_human_review(responses: FakeResponses) -> None:
+def test_provider_failure_becomes_sanitized_human_review(
+    responses: FakeResponses,
+    expected_status: ProviderStatus,
+    expected_reason: ReviewReason,
+) -> None:
     provider = OpenAIInspector(client=_client(responses), image_root=IMAGE_ROOT)
 
+    outcome = provider.inspect(load_demo_request(REPO_ROOT))
     result = run_inspection(load_demo_request(REPO_ROOT), provider=provider)
 
+    assert outcome.status is expected_status
+    assert outcome.assessment is None
+    assert expected_reason in result.review_reasons
     assert result.final_decision is Decision.NEEDS_REVIEW
     assert result.evidence_complete is False
     assert result.assessment.proposed_decision is Decision.NEEDS_REVIEW
@@ -204,3 +265,27 @@ def test_provider_failure_becomes_sanitized_human_review(responses: FakeResponse
     assert result.assessment.confidence == 0.0
     assert result.assessment.summary == "Inspection provider did not return a valid assessment."
     assert "private provider detail" not in result.model_dump_json()
+
+
+def test_model_refusal_has_distinct_provider_status() -> None:
+    refusal = SimpleNamespace(content=[SimpleNamespace(type="refusal")])
+    provider = OpenAIInspector(
+        client=_client(FakeResponses(parsed=None, output=[refusal])),
+        image_root=IMAGE_ROOT,
+    )
+
+    outcome = provider.inspect(load_demo_request(REPO_ROOT))
+
+    assert outcome.status is ProviderStatus.REFUSAL
+    assert outcome.assessment is None
+
+
+def test_success_provider_outcome_requires_assessment_and_effective_model() -> None:
+    with pytest.raises(ValidationError, match="success"):
+        ProviderOutcome(
+            status=ProviderStatus.SUCCESS,
+            assessment=None,
+            requested_model="gpt-5.6",
+            effective_model=None,
+            prompt_version="inspection-v1",
+        )
