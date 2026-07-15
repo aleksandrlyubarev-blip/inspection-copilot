@@ -19,6 +19,8 @@ Inspection Copilot Build Week project.
 - The remote repository was created public and empty on 2026-07-15.
 - Devpost registration is waiting for user login takeover.
 - Bootstrap/spec is the first local Codex-authored slice.
+- Contract/policy TDD slice is green: strict SOP/evidence/result schemas and
+  deterministic fail-closed reasons are implemented from scratch.
 
 ## Verification
 
@@ -26,9 +28,11 @@ Inspection Copilot Build Week project.
 - Python 3.11 `.venv` install completed with OpenAI SDK 2.45.0.
 - Bootstrap gate: Ruff lint/format, strict Mypy, one package test, `pip check`,
   and `git diff --check` pass.
+- Contract/policy gate: 9 focused tests and 10 full tests pass; Ruff and strict
+  Mypy pass for three source files.
 
 ## Next steps
 
-1. Verify bootstrap files and create the first commit on `main`.
-2. Push `main`, then create `agent/vertical-scaffold`.
-3. Start the contracts/policy TDD slice.
+1. Commit the green contract/policy slice on `agent/vertical-scaffold`.
+2. Build the deterministic fixture-backed CLI through a failing end-to-end test.
+3. Add the local web experience and browser smoke.
