@@ -3,16 +3,47 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from html import escape
 from pathlib import Path
 
 import streamlit as st
 
 from inspection_copilot.demo import DemoScenario, load_demo_request, run_demo
+from inspection_copilot.domain import Evidence, InspectionResult
 
 _SCENARIOS = {
     "Clear solder bridge": DemoScenario.BRIDGE_FAIL,
     "Ambiguous / degraded image": DemoScenario.AMBIGUOUS,
 }
+
+
+def _automatic_record_html(result: InspectionResult, *, verdict_class: str) -> str:
+    case_id = escape(result.case_id)
+    model = escape(result.model)
+    decision = escape(result.final_decision.value.upper())
+    summary = escape(result.summary)
+    safe_class = escape(verdict_class, quote=True)
+    return f"""
+        <div class="record-label">
+          AUTOMATIC RECORD · {case_id} · {model}
+        </div>
+        <div class="{safe_class}">
+          <h3>{decision}</h3>
+          <div>{summary}</div>
+        </div>
+    """
+
+
+def _evidence_card_html(item: Evidence) -> str:
+    observation = escape(item.observation)
+    location = escape(item.location)
+    sop_rule_id = escape(item.sop_rule_id)
+    return f"""
+        <div class="evidence-card">
+          <strong>{observation}</strong><br/>
+          <small>{location} · SOP <code>{sop_rule_id}</code></small>
+        </div>
+    """
 
 
 def _inject_styles() -> None:
@@ -84,15 +115,7 @@ def render(repo_root: Path) -> None:
     with verdict_column:
         verdict_class = "verdict review" if result.review_reasons else "verdict"
         st.markdown(
-            f"""
-            <div class="record-label">
-              AUTOMATIC RECORD · {result.case_id} · {result.model}
-            </div>
-            <div class="{verdict_class}">
-              <h3>{result.final_decision.value.upper()}</h3>
-              <div>{result.summary}</div>
-            </div>
-            """,
+            _automatic_record_html(result, verdict_class=verdict_class),
             unsafe_allow_html=True,
         )
         metric_left, metric_right = st.columns(2)
@@ -103,12 +126,7 @@ def render(repo_root: Path) -> None:
         if result.assessment.evidence:
             for item in result.assessment.evidence:
                 st.markdown(
-                    f"""
-                    <div class="evidence-card">
-                      <strong>{item.observation}</strong><br/>
-                      <small>{item.location} · SOP <code>{item.sop_rule_id}</code></small>
-                    </div>
-                    """,
+                    _evidence_card_html(item),
                     unsafe_allow_html=True,
                 )
         else:

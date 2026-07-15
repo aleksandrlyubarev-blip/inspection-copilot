@@ -2,6 +2,10 @@ from pathlib import Path
 
 from streamlit.testing.v1 import AppTest
 
+from inspection_copilot.demo import run_demo
+from inspection_copilot.domain import Decision, Evidence
+from inspection_copilot.ui import _automatic_record_html, _evidence_card_html
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -59,3 +63,31 @@ def test_human_review_does_not_leak_between_cases() -> None:
 
     assert not app.info
     assert app.text_area[0].value == ""
+
+
+def test_untrusted_inspection_fields_are_html_escaped() -> None:
+    evidence = Evidence(
+        observation='<img src=x onerror="alert(1)">',
+        location="<script>alert(2)</script>",
+        sop_rule_id="RULE</code><b>unsafe</b>",
+        supports=Decision.FAIL,
+    )
+    result = run_demo(REPO_ROOT).model_copy(
+        update={
+            "case_id": '<svg onload="alert(3)">',
+            "model": "<b>untrusted-model</b>",
+            "summary": "<iframe>unsafe</iframe>",
+        }
+    )
+
+    evidence_html = _evidence_card_html(evidence)
+    record_html = _automatic_record_html(result, verdict_class="verdict")
+
+    assert "<img" not in evidence_html
+    assert "<script" not in evidence_html
+    assert "</code><b>" not in evidence_html
+    assert "&lt;img" in evidence_html
+    assert "&lt;script" in evidence_html
+    assert "<svg" not in record_html
+    assert "<b>untrusted-model" not in record_html
+    assert "<iframe" not in record_html

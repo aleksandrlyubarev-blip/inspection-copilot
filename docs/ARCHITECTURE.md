@@ -38,6 +38,8 @@ Synthetic image + versioned SOP
   threshold.
 - Any failed gate returns `needs_review`; the UI does not reinterpret the result.
 - Human review is stored separately and cannot rewrite the fixture/model record.
+- Case, model, and evidence fields are HTML-escaped before entering the small
+  `unsafe_allow_html` presentation templates.
 
 ## Runtime modes
 

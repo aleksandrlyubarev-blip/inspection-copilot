@@ -39,6 +39,8 @@ Inspection Copilot Build Week project.
   `--confirm-live-request`; without both, it does not construct the live provider.
 - A deterministic evaluation command and committed offline ledger now track
   policy matches and escalation rate without making model-accuracy claims.
+- Untrusted case, model, summary, location, observation, and SOP-reference fields
+  are HTML-escaped before custom Streamlit rendering.
 
 ## Verification
 
@@ -70,6 +72,8 @@ Inspection Copilot Build Week project.
   metrics, schema-valid CLI output, and exact agreement between the committed
   ledger and a fresh run. The current baseline is 2/2 policy matches with one
   escalation; the 34-test full suite is green.
+- UI trust-boundary gate: a malicious-markup regression test verifies escaping
+  before custom HTML rendering; 6 focused UI tests and the 35-test full suite pass.
 
 ## Next steps
 
