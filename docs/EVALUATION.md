@@ -59,3 +59,22 @@ instead of silently permitting another attempt. The record must not store the
 raw case ID, image, SOP body, free-form response/assessment, response ID, usage
 details, or credentials. One live result validates only the integration
 boundary; it does not establish manufacturing accuracy.
+
+## Live evidence UI trust states
+
+The Streamlit workspace never treats file presence alone as validation. Its
+read-only fixed-path loader exposes exactly three states:
+
+| State | Meaning | UI behavior |
+|---|---|---|
+| `not_run` | The canonical file is absent | States that live validation has not run |
+| `verified` | The complete bounded file is a strict, internally consistent `LiveEvidenceRecord` | Labels it `SCHEMA VERIFIED` and shows only sanitized fields |
+| `untrusted_or_unavailable` | The present path is unsafe, invalid, oversized, raced, or unreadable | Ignores it and shows no partial fields |
+
+A schema-verified `success` record reports its recorded decision, except that a
+recorded `needs_review` route always uses warning severity. A schema-verified
+typed provider failure remains `needs_review` with its sanitized reason. Schema
+and content-hash validation are not a signature or proof of origin. Neither state
+changes the deterministic offline baseline or the separate human-review record.
+Tests create typed temporary fixtures only; the test suite never creates the
+canonical repository artifact or calls a provider.

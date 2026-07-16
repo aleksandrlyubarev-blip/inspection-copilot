@@ -30,6 +30,7 @@ aggregate evidence trail.
 - Deterministic SOP/image fingerprints and versioned result provenance.
 - A bounded, sanitized, deterministic local inspection ledger for audit evidence.
 - A reserved, one-request live-smoke runner and no-clobber sanitized evidence contract.
+- A fixed-path, read-only live-evidence trust panel separate from offline and human records.
 - A deterministic offline provider for end-to-end demo and tests.
 - A GPT-5.6 Responses API provider behind the same interface.
 - A simple web UI that clearly separates model verdict, evidence, and human review.
@@ -67,6 +68,9 @@ aggregate evidence trail.
 11. The runner binds evidence to the actual provider outcome, refuses an existing
     evidence path or reservation before provider construction, and never retries
     a typed or uncertain provider failure.
+12. The UI reports missing live evidence as `not_run`, exposes only a strict
+    sanitized record as `verified`, and fails closed for every unsafe, invalid,
+    oversized, or unreadable artifact without changing offline or human state.
 
 ## Verification
 

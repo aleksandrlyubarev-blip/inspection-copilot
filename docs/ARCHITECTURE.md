@@ -29,6 +29,17 @@ Synthetic image + versioned SOP
         ├─ verdict + evidence
         ├─ input-bound provenance
         └─ separate human review
+
+fixed evidence/live_validation_evidence.json
+              │ read only
+              ▼
+ strict LiveEvidenceRecord trust loader
+        ├─ absent → not run
+        ├─ valid → schema-verified sanitized record
+        └─ unsafe/invalid → untrusted/unavailable
+              │
+              ▼
+ separate live-validation UI panel
 ```
 
 ## Trust boundaries
@@ -133,11 +144,28 @@ The SHA-256 case fingerprint is not an anonymization guarantee. The MVP accepts
 only repository-owned synthetic cases, and identifier-like metadata is restricted
 to a bounded identifier alphabet rather than arbitrary free text.
 
+The UI reader is deliberately narrower than the writer. It has no configurable
+path and reads only `evidence/live_validation_evidence.json` beneath the supplied
+repository root. It opens the real `evidence` directory and the final regular
+file without following symbolic links, verifies the opened file identity, reads
+at most 64 KiB, and then applies the strict `LiveEvidenceRecord` schema and
+content-derived ID check. Missing evidence is `not_run`. A present but invalid,
+oversized, linked/non-regular, raced, or unreadable artifact is
+`untrusted_or_unavailable`; no partially parsed fields reach the UI.
+The content-derived record ID detects accidental or uncorrected tampering but is
+not a signature or origin proof: a writer with local repository access could
+construct a new internally valid record. Authenticity therefore depends on the
+separately reviewed Goal 2 artifact and commit provenance.
+
 ## UI boundary
 
 Streamlit renders the repository-owned image, automatic verdict, confidence,
 image quality, evidence, and cited SOP rule on one screen. A human can record a
-session-local decision only after entering a rationale.
+session-local decision only after entering a rationale. The live-validation
+panel is a third read-only record surface. It never constructs a provider,
+initiates a request, retries, writes evidence, changes the automatic result, or
+updates the session-local human record. Schema-verified provider failures remain
+`needs_review` and only sanitized typed fields are shown.
 
 ## Data policy
 

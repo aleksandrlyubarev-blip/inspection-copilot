@@ -2,8 +2,9 @@
 
 ## Current goal
 
-Bind the actual provider outcome to sanitized evidence and execute at most one
-authorized, cost-bounded GPT-5.6 smoke on repository-owned synthetic data.
+Add a read-only, fail-closed Streamlit live-validation panel for the strict
+sanitized record at the fixed repository evidence path, without creating or
+modifying that artifact or crossing the provider/API boundary.
 
 ## Decisions
 
@@ -65,6 +66,17 @@ authorized, cost-bounded GPT-5.6 smoke on repository-owned synthetic data.
   before provider construction, rejects occupied/broken-symlink evidence names,
   makes one provider invocation, and persists success or typed failure without
   retry. Uncertain post-boundary exceptions retain a fixed reservation marker.
+- Goal 3 has a read-only fixed-path live-validation loader. Missing canonical
+  evidence is `not_run`; only a strict `LiveEvidenceRecord` is `verified`; invalid,
+  oversized, linked/non-regular, raced, or unreadable inputs fail closed as
+  `untrusted_or_unavailable` without exposing partial data.
+- The Streamlit live-validation panel renders those three trust states with no
+  controls. Schema-verified success and typed failure expose only the existing
+  sanitized record; the offline automatic verdict and session-local human record
+  remain separate and unchanged.
+- The visible label is `SCHEMA VERIFIED`: schema/content-hash consistency is not
+  an origin signature. `needs_review` always uses warning severity even when the
+  provider transport status is `success`.
 
 ## Verification
 
@@ -138,11 +150,24 @@ authorized, cost-bounded GPT-5.6 smoke on repository-owned synthetic data.
   output-path override could create multiple independent targets. The public CLI
   now has one fixed per-repository target. The remaining local marker is
   intentionally fail-closed rather than auto-recovered after an uncertain crash.
+- Goal 3 loader slice: 7 focused tests pass for missing/decoy, valid success,
+  valid typed failure, tamper, oversize, symlink/non-regular, and unreadable
+  evidence. Focused Ruff and strict Mypy pass; no canonical evidence was created.
+- Goal 3 UI slice: 18 focused loader/AppTests pass, including verified success,
+  typed timeout routed to `needs_review`, invalid evidence suppression, and
+  simultaneous independent offline/live/human records. Focused Ruff and strict
+  Mypy pass.
+- Goal 3 final gate: 110 tests pass with Ruff lint/format, strict Mypy, `pip
+  check`, and `git diff --check`. The adversarial review found and the regression
+  suite now guards file replacement/in-place mutation, canonical directory swap,
+  false origin claims, green `needs_review` severity, and writer/reader path drift.
+  A third review cycle found no remaining substantive contract violation. No API
+  request, provider construction, canonical evidence artifact, dependency change,
+  push, or PR occurred.
 
 ## Next steps
 
-1. Complete Devpost join after the user login takeover.
-2. Complete the adversarial pre-request review and run the authorized one-request
-   live smoke if `OPENAI_API_KEY` is present.
-3. Strictly validate and commit only the sanitized evidence record.
-4. Expose the validated live result in the UI in a later goal.
+1. Finish the Goal 3 full local quality gate and adversarial trust-boundary review.
+2. Commit the isolated `agent/live-evidence-ui` branch locally without pushing.
+3. After Goal 2 produces authentic sanitized evidence, integrate this commit and
+   verify the panel against that record without issuing another request.

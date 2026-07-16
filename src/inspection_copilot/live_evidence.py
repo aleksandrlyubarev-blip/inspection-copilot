@@ -23,6 +23,7 @@ from inspection_copilot.domain import (
 from inspection_copilot.service import provider_review_reason
 
 MAX_LIVE_EVIDENCE_BYTES = 64 * 1024
+LIVE_EVIDENCE_RELATIVE_PATH = Path("evidence/live_validation_evidence.json")
 Identifier = Annotated[
     str,
     Field(
@@ -267,6 +268,7 @@ def _record_id_from_values(
 
 
 __all__ = [
+    "LIVE_EVIDENCE_RELATIVE_PATH",
     "MAX_LIVE_EVIDENCE_BYTES",
     "LiveEvidenceRecord",
     "LiveEvidenceWriteResult",

@@ -15,6 +15,7 @@ from pydantic import Field
 from inspection_copilot.demo import DemoScenario, load_demo_request
 from inspection_copilot.domain import Decision, ProviderStatus, StrictModel
 from inspection_copilot.live_evidence import (
+    LIVE_EVIDENCE_RELATIVE_PATH,
     LiveEvidenceWriteStatus,
     build_live_evidence,
     write_live_evidence,
@@ -22,7 +23,7 @@ from inspection_copilot.live_evidence import (
 from inspection_copilot.openai_provider import build_openai_inspector
 from inspection_copilot.service import Inspector, execute_inspection
 
-DEFAULT_LIVE_EVIDENCE_RELATIVE_PATH = Path("evidence/live_validation_evidence.json")
+DEFAULT_LIVE_EVIDENCE_RELATIVE_PATH = LIVE_EVIDENCE_RELATIVE_PATH
 _RESERVED_MARKER = b"reserved-before-provider-construction\n"
 _REQUEST_BOUNDARY_MARKER = b"request-may-have-started\n"
 

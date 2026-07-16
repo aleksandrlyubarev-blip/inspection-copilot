@@ -33,13 +33,18 @@ gates and show the prominent **Escalate to human review** action.
 Enter a short rationale and record a human decision. Show the separate
 timestamped **HUMAN RECORD** while the automatic record remains unchanged.
 
-## 2:20–2:45 — Reproducible evidence
+## 2:20–2:42 — Reproducible and live-validation evidence
 
 Show the two offline commands and the test suite. Explain that repeated fixture
 runs produce identical structured JSON, while missing evidence and invalid SOP
-references are regression-tested to force `needs_review`.
+references are regression-tested to force `needs_review`. Point to the separate
+**Live validation evidence** panel: `NOT RUN` means no canonical evidence exists;
+only a strict sanitized artifact can become `SCHEMA VERIFIED`; this proves
+internal consistency, not origin. Any unsafe or invalid artifact is ignored as
+`UNTRUSTED / UNAVAILABLE`. If authentic Goal 2 evidence is not yet present, do not
+simulate or imply a live result.
 
-## 2:45–3:00 — Build Week contribution
+## 2:42–3:00 — Build Week contribution
 
 Close on the architecture: Codex owns the implementation, tests, documentation,
 and commit history; GPT-5.6 runs behind a bounded one-request vision provider and

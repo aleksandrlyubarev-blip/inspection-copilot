@@ -49,7 +49,13 @@ streamlit run streamlit_app.py
 
 The scenario selector demonstrates both supported automation and ambiguity. The
 screen keeps the automatic verdict, cited SOP evidence, and timestamped human
-review as separate records. Human review is session-local in this MVP.
+review as separate records. Human review is session-local in this MVP. A third,
+read-only **Live validation evidence** panel is also separate: it reports `NOT
+RUN` when the canonical file is absent, `SCHEMA VERIFIED` only for a strict
+sanitized `LiveEvidenceRecord`, and `UNTRUSTED / UNAVAILABLE` for any present
+artifact that cannot be safely read and validated. Schema verification proves
+structure and internal content consistency, not who produced the local file. The
+panel has no request or file controls.
 
 ## Fail-closed proof
 
@@ -58,7 +64,11 @@ review as separate records. Human review is session-local in this MVP.
 - `tests/test_policy.py` proves that missing evidence and an invalid SOP rule
   reference force `needs_review` even when the proposed verdict is `fail`.
 - `tests/test_ui.py` guards distinct automatic/human record labels, mandatory
-  rationale, a human timestamp, and the escalation action.
+  rationale, a human timestamp, the escalation action, and separation from the
+  read-only live-validation panel.
+- `tests/test_live_validation.py` rejects tampered, oversized, linked,
+  non-regular, raced, and unreadable live evidence without displaying partial
+  fields.
 
 ## GPT-5.6 provider boundary
 
@@ -76,12 +86,21 @@ tests never make a live model call. The separately approved smoke uses a
 dedicated one-request runner.
 
 The sanitized evidence contract for that smoke is implemented. Until the runner
-is actually executed, no live-evidence file is committed or implied. It permits only a UTC timestamp,
-content-derived record/case IDs, provider and decision routing fields, model and
-workflow versions, and SOP/image fingerprints. It excludes raw case IDs, images,
-SOP bodies, model/assessment free text, response IDs, usage, and credentials.
-Exact replay is a byte-identical no-op; different evidence cannot replace the
-first atomically published record.
+is actually executed, no live-evidence file is committed or implied. It permits
+only a UTC timestamp, content-derived record/case IDs, provider and decision
+routing fields, model and workflow versions, and SOP/image fingerprints. It
+excludes raw case IDs, images, SOP bodies, model/assessment free text, response
+IDs, usage, and credentials. Exact replay is a byte-identical no-op; different
+evidence cannot replace the first atomically published record.
+
+At startup, the UI performs a read-only check of only
+`evidence/live_validation_evidence.json` under the repository root. It does not
+follow symbolic links, accepts only a bounded regular file whose complete JSON
+passes the strict record schema and content-derived ID check, and never constructs
+a provider. A schema-verified typed provider failure is displayed as
+`needs_review`, not as a successful inspection or an offline verdict. Local write
+access remains outside this validation boundary; authenticity depends on review
+of the Goal 2 artifact and commit provenance.
 
 The case fingerprint is pseudonymous routing evidence, not anonymization; real
 customer identifiers remain outside the MVP and must not be supplied.

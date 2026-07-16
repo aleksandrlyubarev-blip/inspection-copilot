@@ -9,7 +9,8 @@ from pathlib import Path
 import streamlit as st
 
 from inspection_copilot.demo import DemoScenario, load_demo_request, run_demo
-from inspection_copilot.domain import Evidence, InspectionResult
+from inspection_copilot.domain import Decision, Evidence, InspectionResult, ProviderStatus
+from inspection_copilot.live_validation import LiveValidationState, load_live_validation
 
 _SCENARIOS = {
     "Clear solder bridge": DemoScenario.BRIDGE_FAIL,
@@ -92,6 +93,47 @@ def _inject_styles() -> None:
     )
 
 
+def render_live_validation_panel(repo_root: Path) -> None:
+    """Render only strictly validated data from the fixed live-evidence path."""
+
+    st.markdown("### Live validation evidence")
+    st.caption(
+        "Read-only trust state for the separately authorized one-request smoke. "
+        "It never changes the offline automatic verdict or the human record."
+    )
+    snapshot = load_live_validation(repo_root)
+    if snapshot.state is LiveValidationState.NOT_RUN:
+        st.info("LIVE VALIDATION · NOT RUN — no canonical sanitized evidence is present.")
+        return
+    if snapshot.state is LiveValidationState.UNTRUSTED_OR_UNAVAILABLE:
+        st.error(
+            "LIVE VALIDATION · UNTRUSTED / UNAVAILABLE — the artifact is ignored and "
+            "no partial fields are displayed."
+        )
+        return
+
+    record = snapshot.record
+    if record is None:
+        st.error("LIVE VALIDATION · UNTRUSTED / UNAVAILABLE — no verified record.")
+        return
+
+    status = record.provider_status.value.upper()
+    decision = record.final_decision.value.upper()
+    message = f"LIVE VALIDATION · SCHEMA VERIFIED · {status} · {decision}"
+    if (
+        record.provider_status is ProviderStatus.SUCCESS
+        and record.final_decision is not Decision.NEEDS_REVIEW
+    ):
+        st.success(message)
+    else:
+        st.warning(message)
+    st.caption(
+        "Strict schema and content consistency only, not proof of origin. Sanitized typed "
+        "metadata only; no response ID, usage, or raw model output."
+    )
+    st.json(record.model_dump(mode="json"), expanded=False)
+
+
 def render(repo_root: Path) -> None:
     st.set_page_config(page_title="Inspection Copilot", page_icon="🔎", layout="wide")
     _inject_styles()
@@ -143,6 +185,10 @@ def render(repo_root: Path) -> None:
         st.caption("Sanitized workflow versions and input fingerprints for this result.")
         st.json(result.provenance.model_dump(mode="json"), expanded=False)
 
+    st.divider()
+    render_live_validation_panel(repo_root)
+
+    st.divider()
     st.markdown("### Human review")
     st.caption("The model result remains unchanged; this records a separate operator decision.")
     review_decision = st.selectbox(
@@ -181,4 +227,4 @@ def render(repo_root: Path) -> None:
         )
 
 
-__all__ = ["render"]
+__all__ = ["render", "render_live_validation_panel"]
