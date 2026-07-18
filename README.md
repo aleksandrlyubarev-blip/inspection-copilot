@@ -19,10 +19,34 @@ credential-free synthetic mock flow, GPT-5.6 Responses API adapter, and web
 experience are runnable behind the same typed contract.
 
 - Codex owns architecture, implementation, tests, documentation, and commits.
-- GPT-5.6 runtime analyzes images and returns strict structured assessments.
+- The GPT-5.6 runtime adapter is implemented and mock-transport verified. The
+  canonical one-request live validation is not claimed until its sanitized
+  evidence record exists and passes the repository validator.
 - Grok participates only after the working mock flow as an external red-team
   reviewer of public documentation and synthetic scenarios.
 - No application code is copied from prior RoboQC, Claude, or Grok work.
+
+## How Codex was used
+
+Codex developed the product in small, reviewable slices rather than generating
+one unverified application dump. The public commit history records the concrete
+episodes:
+
+- Contract-first TDD established strict SOP, evidence, assessment, and
+  fail-closed policy behavior before the UI (`eb0c765`, `560d768`).
+- Codex built the deterministic synthetic inspection flow and Streamlit operator
+  workspace, then guarded automatic and human decisions as separate records.
+- The bounded GPT-5.6 provider and explicit live-request gate were added behind
+  the existing injected interface (`549d730`, `65cc948`).
+- Codex triaged an external Grok red-team review, independently implemented the
+  accepted remediations, and rejected unsupported accuracy-style claims
+  (`bd5146a`, `3382b78`).
+- Adversarial review closed live-smoke bypasses and added a read-only,
+  fail-closed evidence panel (`88d1026`, `d3ef1a9`).
+
+The Build Week `/feedback` identifier is submission metadata, not application
+data. It is intentionally not committed; it must be collected from the primary
+Codex session and entered directly in Devpost.
 
 ## Run the synthetic mock flow
 
@@ -123,6 +147,24 @@ reservation and requires manual review before any new authorization. The legacy
 through the same runner. Do not use either command merely to verify installation;
 use the fixture commands above for credential-free checks.
 
+## How GPT-5.6 was used
+
+GPT-5.6 is the runtime vision reasoner for the bounded live path, while the
+default demo remains deterministic and credential-free. One Responses API call
+receives the repository-owned synthetic image plus the typed inspection request,
+including the versioned SOP rules. It requests model alias `gpt-5.6`, high image
+detail, medium reasoning effort, and strict Pydantic structured output, with
+`store=false`, a 60-second timeout, 2,000 output tokens, and SDK retries disabled.
+
+The returned assessment is not trusted directly. The deterministic policy layer
+revalidates evidence and SOP references; refusal, timeout, rate limiting,
+unavailability, or invalid structured output becomes a typed `needs_review`
+outcome. Mock-transport tests prove this SDK boundary without spending API
+credits. A real GPT-5.6 outcome is claimed only after the one-request runner
+creates `evidence/live_validation_evidence.json` and the UI reports `SCHEMA
+VERIFIED`. The synthetic fixture results and evaluation ledger are workflow
+proof, not measurements of model or manufacturing accuracy.
+
 Run the deterministic policy-level evaluation:
 
 ```bash
@@ -157,7 +199,7 @@ pytest -q
 
 ## Official platform references
 
-- [GPT-5.6 model guidance](https://developers.openai.com/api/docs/guides/latest-model)
+- [GPT-5.6 model guidance](https://developers.openai.com/api/docs/guides/model-guidance?model=gpt-5.6)
 - [Responses API](https://developers.openai.com/api/docs/api-reference/responses)
 - [Images and vision](https://developers.openai.com/api/docs/guides/images-vision)
 - [OpenAI Build Week](https://openai.devpost.com/)
@@ -168,6 +210,7 @@ pytest -q
 - [Evaluation ledger](docs/EVALUATION.md)
 - [Sanitized inspection ledger](evidence/offline_inspection_ledger.json)
 - [Three-minute demo script](docs/DEMO_SCRIPT.md)
+- [Submission checklist](docs/SUBMISSION_CHECKLIST.md)
 - [Grok red-team packet](docs/GROK_REVIEW_PACKET.md)
 - [Grok review and Codex triage](docs/reviews/GROK_RED_TEAM_2026-07-15.md)
 

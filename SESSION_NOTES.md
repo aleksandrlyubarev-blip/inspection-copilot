@@ -2,9 +2,11 @@
 
 ## Current goal
 
-Add a read-only, fail-closed Streamlit live-validation panel for the strict
-sanitized record at the fixed repository evidence path, without creating or
-modifying that artifact or crossing the provider/API boundary.
+Complete the deadline-safe submission critical path on the existing Streamlit
+architecture: honest judge-facing documentation, one bounded GPT-5.6 live smoke
+when a securely supplied key is available, sanitized evidence/UI verification,
+fresh-clone proof, video/Devpost readiness, and `/feedback` capture. Stop before
+secret access, a second API request, merge, deploy, or final submission.
 
 ## Decisions
 
@@ -77,6 +79,11 @@ modifying that artifact or crossing the provider/API boundary.
 - The visible label is `SCHEMA VERIFIED`: schema/content-hash consistency is not
   an origin signature. `needs_review` always uses warning severity even when the
   provider transport status is `success`.
+- Goal 3 commit `d3ef1a9` passed review, was fast-forwarded into
+  `agent/vertical-scaffold`, and was pushed to its existing draft PR branch.
+- Judge-facing README copy now separates Codex development episodes, the tested
+  GPT-5.6 runtime contract, and the still-pending live-validation claim. A
+  deadline checklist records the frozen scope and human-only gates.
 
 ## Verification
 
@@ -164,10 +171,18 @@ modifying that artifact or crossing the provider/API boundary.
   A third review cycle found no remaining substantive contract violation. No API
   request, provider construction, canonical evidence artifact, dependency change,
   push, or PR occurred.
+- Submission-documentation slice: README claims were reconciled with the actual
+  evidence state, concrete Codex/GPT-5.6 usage was documented, the official model
+  guidance link was corrected, and the deadline checklist was added. Markdown
+  targets and the full local quality gate pass without a provider construction or
+  API request.
 
 ## Next steps
 
-1. Finish the Goal 3 full local quality gate and adversarial trust-boundary review.
-2. Commit the isolated `agent/live-evidence-ui` branch locally without pushing.
-3. After Goal 2 produces authentic sanitized evidence, integrate this commit and
-   verify the panel against that record without issuing another request.
+1. Supply `OPENAI_API_KEY` securely to a fresh process; never paste or commit it.
+2. Run the canonical live-smoke command exactly once, then validate the resulting
+   sanitized record and Streamlit panel without another provider request.
+3. Re-authenticate GitHub CLI, update the existing draft PR, and run fresh-clone
+   proof before recording the video and completing the Devpost draft.
+4. Capture the primary Codex `/feedback` ID privately. Stop before merge, deploy,
+   or final Devpost submission pending explicit human approval.
