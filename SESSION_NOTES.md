@@ -84,6 +84,12 @@ secret access, a second API request, merge, deploy, or final submission.
 - Judge-facing README copy now separates Codex development episodes, the tested
   GPT-5.6 runtime contract, and the still-pending live-validation claim. A
   deadline checklist records the frozen scope and human-only gates.
+- Submission documentation commit `93e2e49` is pushed to the existing draft PR
+  #1. Its body now matches the 110-test scope and both GitHub Actions quality
+  checks are green.
+- A clean public-remote clone of `agent/vertical-scaffold` at `93e2e49` installs
+  under Python 3.11, passes the complete gate, runs both fixture scenarios, and
+  renders the expected fail-closed `NOT RUN` live-evidence panel.
 
 ## Verification
 
@@ -176,13 +182,21 @@ secret access, a second API request, merge, deploy, or final submission.
   guidance link was corrected, and the deadline checklist was added. Markdown
   targets and the full local quality gate pass without a provider construction or
   API request.
+- Fresh-clone gate: public remote HEAD `93e2e49` installed into a new Python 3.11
+  virtual environment with current allowed dependencies. Both installed fixture
+  commands returned the expected `fail` and `needs_review` records; Ruff,
+  formatting, strict Mypy, all 110 tests, `pip check`, and `git diff --check`
+  passed. A localhost browser smoke confirmed the independent offline verdict,
+  `LIVE VALIDATION · NOT RUN` state, and human-review panel. The server and
+  temporary clone were removed; no provider was constructed and no live evidence
+  was created.
 
 ## Next steps
 
 1. Supply `OPENAI_API_KEY` securely to a fresh process; never paste or commit it.
 2. Run the canonical live-smoke command exactly once, then validate the resulting
    sanitized record and Streamlit panel without another provider request.
-3. Re-authenticate GitHub CLI, update the existing draft PR, and run fresh-clone
-   proof before recording the video and completing the Devpost draft.
+3. Record the video and complete the Devpost draft using the frozen documentation
+   and three-minute script.
 4. Capture the primary Codex `/feedback` ID privately. Stop before merge, deploy,
    or final Devpost submission pending explicit human approval.

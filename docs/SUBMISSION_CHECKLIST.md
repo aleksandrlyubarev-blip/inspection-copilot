@@ -15,6 +15,11 @@ hardware integration, create another repository, or add unrelated features.
   panels.
 - [x] Pre-smoke local gate: 110 tests, Ruff lint/format, strict Mypy, `pip check`,
   and `git diff --check` are green.
+- [x] Fresh clone of public branch `agent/vertical-scaffold` at `93e2e49`
+  installs on Python 3.11, passes the same gate, runs both fixture scenarios, and
+  renders the expected `NOT RUN` live-evidence state.
+- [x] Existing draft PR #1 has current scope/verification text and green GitHub
+  Actions checks; no duplicate PR was created.
 - [x] Three-minute walkthrough in [DEMO_SCRIPT.md](DEMO_SCRIPT.md).
 
 ## Human-gated critical path
@@ -35,9 +40,6 @@ hardware integration, create another repository, or add unrelated features.
 - [ ] Open the Streamlit app and confirm the live panel reports `SCHEMA VERIFIED`
   for the sanitized record. Keep raw model output, response IDs, usage, and
   credentials out of the repository.
-- [ ] Re-authenticate GitHub CLI with `gh auth login -h github.com`, then update
-  the existing draft PR description. Do not create a duplicate PR.
-- [ ] Run the quality gate from a fresh clone and rehearse the walkthrough.
 - [ ] Record a video under three minutes using only synthetic data and the
   scripted trust-state explanation.
 - [ ] Run `/feedback` in the primary Codex session and enter its identifier
