@@ -211,6 +211,7 @@ pytest -q
 - [Sanitized inspection ledger](evidence/offline_inspection_ledger.json)
 - [Three-minute demo script](docs/DEMO_SCRIPT.md)
 - [Submission checklist](docs/SUBMISSION_CHECKLIST.md)
+- [Devpost submission draft](docs/DEVPOST_DRAFT.md)
 - [Grok red-team packet](docs/GROK_REVIEW_PACKET.md)
 - [Grok review and Codex triage](docs/reviews/GROK_RED_TEAM_2026-07-15.md)
 

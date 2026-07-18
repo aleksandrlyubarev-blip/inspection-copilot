@@ -90,6 +90,10 @@ secret access, a second API request, merge, deploy, or final submission.
 - A clean public-remote clone of `agent/vertical-scaffold` at `93e2e49` installs
   under Python 3.11, passes the complete gate, runs both fixture scenarios, and
   renders the expected fail-closed `NOT RUN` live-evidence panel.
+- `docs/DEVPOST_DRAFT.md` contains paste-ready English submission copy aligned to
+  the official rules: Work and Productivity, public licensed repository, public
+  YouTube demo under three minutes with audio, explicit Codex/GPT-5.6 coverage,
+  and a private `/feedback` form field. No Devpost state was changed.
 
 ## Verification
 
@@ -190,13 +194,18 @@ secret access, a second API request, merge, deploy, or final submission.
   `LIVE VALIDATION · NOT RUN` state, and human-review panel. The server and
   temporary clone were removed; no provider was constructed and no live evidence
   was created.
+- Devpost-copy gate: current official rules and FAQ were checked against the local
+  README, demo script, repository license, track, and testing path. The draft
+  preserves the pending live-evidence claim and leaves the YouTube URL and private
+  `/feedback` field unfilled. Ruff, formatting, strict Mypy, all 110 tests, `pip
+  check`, and `git diff --check` remain green without an API request.
 
 ## Next steps
 
 1. Supply `OPENAI_API_KEY` securely to a fresh process; never paste or commit it.
 2. Run the canonical live-smoke command exactly once, then validate the resulting
    sanitized record and Streamlit panel without another provider request.
-3. Record the video and complete the Devpost draft using the frozen documentation
-   and three-minute script.
+3. Record the public YouTube video, then paste the prepared English copy into a
+   saved Devpost draft using the frozen documentation and three-minute script.
 4. Capture the primary Codex `/feedback` ID privately. Stop before merge, deploy,
    or final Devpost submission pending explicit human approval.

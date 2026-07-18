@@ -21,6 +21,8 @@ hardware integration, create another repository, or add unrelated features.
 - [x] Existing draft PR #1 has current scope/verification text and green GitHub
   Actions checks; no duplicate PR was created.
 - [x] Three-minute walkthrough in [DEMO_SCRIPT.md](DEMO_SCRIPT.md).
+- [x] Paste-ready English Devpost copy in [DEVPOST_DRAFT.md](DEVPOST_DRAFT.md),
+  reconciled with the current official rules and explicit human-only fields.
 
 ## Human-gated critical path
 
