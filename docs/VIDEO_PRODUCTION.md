@@ -38,27 +38,16 @@ recording must visibly demonstrate:
 A brief repository commit-history or Codex-interface shot is useful evidence for
 item 6, but the application demo remains the center of the video.
 
-## Choose exactly one live-state narration
+## Required live-state narration
 
-### Canonical evidence is verified
+Show `LIVE VALIDATION · SCHEMA VERIFIED · SUCCESS · FAIL`. Say that one separately
+authorized request using alias `gpt-5.6` produced an evidence-backed `fail` and a
+sanitized record whose schema, fingerprints, and internal content hashes passed
+the repository validator. The recorded effective model is `gpt-5.6-sol`. Do
+**not** describe this as proof of origin, model accuracy, or production readiness.
 
-Show `LIVE VALIDATION · SCHEMA VERIFIED`. Say that a separately authorized
-one-request GPT-5.6 smoke produced a sanitized record whose schema, fingerprints,
-and internal content hashes passed the repository validator. Do **not** describe
-this as proof of origin, model accuracy, or production readiness.
-
-If the verified record is a typed provider failure, also state that the final
-decision remains `needs_review`; schema verification does not turn a failed
-provider outcome into a successful inspection.
-
-### No canonical evidence exists
-
-Show `LIVE VALIDATION · NOT RUN`. Say that the bounded GPT-5.6 integration is
-implemented and mock-transport tested, but no authentic live result is claimed.
-Do not hand-write, copy, or substitute fixture output as live evidence.
-
-If the panel reports `UNTRUSTED / UNAVAILABLE`, stop recording and investigate;
-do not publish a video that presents that state as successful validation.
+If the panel reports anything else, stop recording and investigate. Do not edit,
+replace, regenerate, or rerun the canonical evidence.
 
 ## Paste-ready YouTube metadata
 

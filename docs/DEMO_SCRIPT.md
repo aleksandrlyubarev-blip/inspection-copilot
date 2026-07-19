@@ -38,12 +38,12 @@ timestamped **HUMAN RECORD** while the automatic record remains unchanged.
 Show the two offline commands and the test suite. Explain that repeated fixture
 runs produce identical structured JSON, while missing evidence and invalid SOP
 references are regression-tested to force `needs_review`. Point to the separate
-**Live validation evidence** panel: `NOT RUN` means no canonical evidence exists;
-only a strict sanitized artifact can become `SCHEMA VERIFIED`; this proves
-internal consistency, not origin or model accuracy. A verified provider failure
-still ends in `needs_review`. Any unsafe or invalid artifact is ignored as
-`UNTRUSTED / UNAVAILABLE`. If authentic one-request evidence is not present, show
-and say `NOT RUN`; do not simulate or imply a live result.
+**Live validation evidence** panel and show `SCHEMA VERIFIED · SUCCESS · FAIL`.
+Explain that one separately authorized GPT-5.6 request produced this strict
+sanitized record and deterministic policy accepted complete SOP-linked evidence
+for `fail`. Schema and fingerprint verification proves internal consistency, not
+origin or model accuracy; unsafe or modified artifacts fail closed as `UNTRUSTED
+/ UNAVAILABLE`.
 
 ## 2:15–2:38 — How Codex was used
 

@@ -11,9 +11,14 @@ hardware integration, create another repository, or add unrelated features.
 - [x] Bounded GPT-5.6 adapter with strict structured output and fail-closed
   provider outcomes.
 - [x] Fixed-target, at-most-one-request live-smoke runner with no SDK retries.
+- [x] The single authorized GPT-5.6 request completed on 2026-07-19 with provider
+  success and an evidence-backed `fail`; the canonical record ID begins
+  `121810d71ec6`.
+- [x] The fixed-path loader validates the sanitized canonical record and the UI
+  reports `SCHEMA VERIFIED · SUCCESS · FAIL`; no reservation marker remains.
 - [x] Separate automatic verdict, operator review, and read-only live-evidence
   panels.
-- [x] Pre-smoke local gate: 110 tests, Ruff lint/format, strict Mypy, `pip check`,
+- [x] Current local gate: 111 tests, Ruff lint/format, strict Mypy, `pip check`,
   and `git diff --check` are green.
 - [x] Fresh clone of public branch `agent/vertical-scaffold` at `93e2e49`
   installs on Python 3.11, passes the same gate, runs both fixture scenarios, and
@@ -29,22 +34,9 @@ hardware integration, create another repository, or add unrelated features.
 
 ## Human-gated critical path
 
-- [ ] Make `OPENAI_API_KEY` available to the process through a secure local
-  environment. Never paste it into chat, logs, source files, or commits.
-- [ ] Confirm that neither the canonical evidence file nor its reservation
-  marker exists, then run exactly once:
-
-  ```bash
-  inspection-copilot-live-smoke \
-    --repo-root . \
-    --confirm-one-live-request
-  ```
-
-- [ ] Do not retry. If the command reports uncertainty or leaves a reservation,
-  inspect it manually before requesting new authorization.
-- [ ] Open the Streamlit app and confirm the live panel reports `SCHEMA VERIFIED`
-  for the sanitized record. Keep raw model output, response IDs, usage, and
-  credentials out of the repository.
+- [x] Preserve the validated canonical evidence exactly as written. Do not run
+  the live-smoke command again, request another model response, or expose the
+  credential, raw output, response ID, or usage.
 - [ ] Record a public YouTube video of 3:00 or less using only synthetic data and
   the scripted trust-state explanation. Include an English voiceover or English
   translation, a clear working demo, concrete Codex workflow/decisions, and
@@ -60,12 +52,12 @@ hardware integration, create another repository, or add unrelated features.
 
 ## Schedule
 
-- Saturday: obtain the single sanitized live-validation record and verify its UI
+- Saturday: completed the single sanitized live validation and verified its UI
   state.
 - Sunday: freeze features, finish judge-facing copy, and rehearse the demo.
 - Monday: fresh-clone proof, video recording, and Devpost draft.
 - Tuesday: buffer and final human submission only; no architectural work.
 
-If live validation cannot be completed safely, preserve the honest `NOT RUN`
-state and use that narration from the video runbook. Never substitute fixture
-output or a hand-written file as live evidence.
+The canonical record now exists and is immutable for this submission. If its UI
+state changes from `SCHEMA VERIFIED · SUCCESS · FAIL`, stop and investigate;
+never replace it with fixture output or a hand-written file.

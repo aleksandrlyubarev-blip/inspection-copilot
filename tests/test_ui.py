@@ -101,7 +101,18 @@ def test_main_screen_shows_case_verdict_and_evidence() -> None:
     assert any("SOLDER-BRIDGE-001" in item.value for item in app.markdown)
     assert len(app.image) == 1
     assert any("Live validation evidence" in item.value for item in app.markdown)
+    assert any(
+        "SCHEMA VERIFIED" in item.value and "SUCCESS" in item.value and "FAIL" in item.value
+        for item in app.success
+    )
+
+
+def test_missing_live_evidence_shows_not_run(tmp_path: Path) -> None:
+    app = _temporary_app(tmp_path)
+
+    assert not app.exception
     assert any("NOT RUN" in item.value for item in app.info)
+    assert not app.json
 
 
 def test_verified_success_panel_shows_only_sanitized_record(tmp_path: Path) -> None:
@@ -199,10 +210,10 @@ def test_ambiguous_scenario_prominently_escalates() -> None:
 def test_ui_exposes_structured_audit_provenance() -> None:
     app = _app()
     expected = run_demo(REPO_ROOT).provenance.model_dump(mode="json")
+    json_payloads = [json.loads(item.value) for item in app.json]
 
     assert any(expander.label == "Audit provenance" for expander in app.expander)
-    assert len(app.json) == 1
-    assert json.loads(app.json[0].value) == expected
+    assert expected in json_payloads
 
 
 def test_human_review_does_not_leak_between_cases() -> None:

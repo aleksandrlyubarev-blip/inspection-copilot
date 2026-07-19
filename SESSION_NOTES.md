@@ -2,11 +2,11 @@
 
 ## Current goal
 
-Complete the deadline-safe submission critical path on the existing Streamlit
-architecture: honest judge-facing documentation, one bounded GPT-5.6 live smoke
-when a securely supplied key is available, sanitized evidence/UI verification,
-fresh-clone proof, video/Devpost readiness, and `/feedback` capture. Stop before
-secret access, a second API request, merge, deploy, or final submission.
+Finish the deadline-safe submission package on the existing Streamlit
+architecture after the completed one-request GPT-5.6 smoke: preserve the
+canonical evidence, keep judge-facing claims exact, record the video, prepare the
+Devpost draft, and capture `/feedback`. Stop before secret access, a second API
+request, merge, deploy, or final submission.
 
 ## Decisions
 
@@ -59,10 +59,10 @@ secret access, a second API request, merge, deploy, or final submission.
   two-entry fixture ledger at an explicit output path. The committed artifact is
   strict-schema checked and contains no raw case IDs or assessment/evidence free
   text. Fixture orchestration is separated from generic ledger persistence.
-- A strict `LiveEvidenceRecord` contract is ready for a future authorized smoke.
-  It records only provider/result routing metadata, UTC time, and fingerprints;
-  exact replay is a byte-identical no-op and different evidence cannot overwrite
-  the first atomically published record.
+- The strict `LiveEvidenceRecord` contract is now exercised by the single
+  authorized smoke. It records only provider/result routing metadata, UTC time,
+  and fingerprints; exact replay is a byte-identical no-op and different
+  evidence cannot overwrite the first atomically published record.
 - `InspectionExecution` now binds a single actual `ProviderOutcome` to the policy
   result derived from it. The dedicated live-smoke CLI reserves the attempt
   before provider construction, rejects occupied/broken-symlink evidence names,
@@ -82,7 +82,7 @@ secret access, a second API request, merge, deploy, or final submission.
 - Goal 3 commit `d3ef1a9` passed review, was fast-forwarded into
   `agent/vertical-scaffold`, and was pushed to its existing draft PR branch.
 - Judge-facing README copy now separates Codex development episodes, the tested
-  GPT-5.6 runtime contract, and the still-pending live-validation claim. A
+  GPT-5.6 runtime contract, and the verified sanitized live-validation claim. A
   deadline checklist records the frozen scope and human-only gates.
 - Submission documentation commit `93e2e49` is pushed to the existing draft PR
   #1. Its body now matches the 110-test scope and both GitHub Actions quality
@@ -99,10 +99,14 @@ secret access, a second API request, merge, deploy, or final submission.
   English voiceover or translation, concrete Codex workflow/decisions, and a
   meaningful explanation of GPT-5.6 integration and runtime behavior.
 - `docs/VIDEO_PRODUCTION.md` now provides a 2:45–2:50 shot plan, recording safety
-  guardrails, paste-ready YouTube metadata, acceptance checks, and separate
-  honest narration for `SCHEMA VERIFIED` and `NOT RUN`. The matching demo script
+  guardrails, paste-ready YouTube metadata, acceptance checks, and the exact
+  current `SCHEMA VERIFIED · SUCCESS · FAIL` narration. The matching demo script
   leaves ten seconds of deadline margin and no longer relies on generic tool
   attribution.
+- The user executed the fixed-target live-smoke runner exactly once on
+  2026-07-19. The canonical sanitized record reports requested model `gpt-5.6`,
+  effective model `gpt-5.6-sol`, provider success, complete evidence, and final
+  `fail`. No reservation marker remains, and a second request is forbidden.
 
 ## Verification
 
@@ -213,15 +217,23 @@ secret access, a second API request, merge, deploy, or final submission.
   A localhost browser smoke visibly confirmed the automatic `FAIL`, independent
   `LIVE VALIDATION · NOT RUN`, and separate human-review form. Ruff lint and
   format, strict Mypy, all 110 tests, `pip check`, and `git diff --check` pass.
-  No provider was constructed; neither the canonical evidence file nor its
-  reservation marker exists.
+  At that pre-smoke gate no provider was constructed and no canonical evidence
+  existed; the completed live-validation gate below supersedes that state.
+- Live-validation gate: the fixed-path fail-closed loader reports `verified` for
+  record `121810d71ec6c927da842846edc0abbc2241180fbb805c0c4d6184cf35d8397e`.
+  Its content-derived ID validates, the image and SOP fingerprints match the
+  built-in synthetic case, and the file is a 703-byte regular file with no
+  reservation marker. A credential-free localhost browser smoke visibly
+  confirmed `LIVE VALIDATION · SCHEMA VERIFIED · SUCCESS · FAIL` alongside the
+  independent offline verdict and human-review form. No second provider request
+  was made during validation or documentation updates. The UI test harness now
+  isolates the absent-artifact state while the main-app test guards the committed
+  verified state; the suite contains 111 tests.
 
 ## Next steps
 
-1. Supply `OPENAI_API_KEY` securely to a fresh process; never paste or commit it.
-2. Run the canonical live-smoke command exactly once, then validate the resulting
-   sanitized record and Streamlit panel without another provider request.
-3. Record the public YouTube video, then paste the prepared English copy into a
+1. Preserve the canonical live evidence and do not run the provider again.
+2. Record the public YouTube video, then paste the prepared English copy into a
    saved Devpost draft using the frozen documentation and three-minute script.
-4. Capture the primary Codex `/feedback` ID privately. Stop before merge, deploy,
+3. Capture the primary Codex `/feedback` ID privately. Stop before merge, deploy,
    or final Devpost submission pending explicit human approval.

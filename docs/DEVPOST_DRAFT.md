@@ -33,9 +33,10 @@ The Streamlit workspace presents three deliberately separate records. The first
 is the automatic inspection result with image evidence, SOP traceability, and
 content fingerprints. The second is a rationale-gated operator review with its
 own timestamp. The third is a read-only trust state for a separately authorized
-GPT-5.6 validation. It shows `NOT RUN` when no canonical evidence exists,
-`SCHEMA VERIFIED` only for a strict sanitized record, and fails closed for
-tampered, linked, raced, oversized, or unreadable artifacts.
+GPT-5.6 validation. The single authorized request returned provider success and
+an evidence-backed `fail`; its strict sanitized record is displayed as `SCHEMA
+VERIFIED · SUCCESS · FAIL`. The loader still fails closed for tampered, linked,
+raced, oversized, or unreadable artifacts.
 
 The default demonstration is credential-free and uses repository-owned synthetic
 images so judges can reproduce both a supported `fail` and an ambiguous
@@ -62,7 +63,7 @@ the project was called ready.
 The most important product decision was to keep automatic judgment, operator
 review, and live-validation provenance separate. The most important engineering
 decision was to fail closed at every untrusted boundary. Codex accelerated both
-the implementation and the evidence needed to defend those decisions: 110 tests,
+the implementation and the evidence needed to defend those decisions: 111 tests,
 strict typing, deterministic synthetic fixtures, a public commit trail, a
 fresh-clone proof, and green GitHub Actions.
 
@@ -76,10 +77,13 @@ that assessment on faith: deterministic policy decides whether it is complete
 enough to become `pass` or `fail`, otherwise it becomes `needs_review`.
 
 The repository proves the exact Responses API request and structured-output
-boundary with local HTTP mock transport. A real live result must not be claimed
-until the one-request runner creates the canonical sanitized record and the UI
-validates it. Fixture outputs and the evaluation ledger demonstrate workflow
-behavior, not model or manufacturing accuracy.
+boundary with local HTTP mock transport. One separately authorized request used
+alias `gpt-5.6`, resolved to `gpt-5.6-sol`, and created the canonical sanitized
+record. The fixed-path loader verified its schema, fingerprints, and
+content-derived ID, and the UI reports `SCHEMA VERIFIED · SUCCESS · FAIL`. This
+demonstrates the bounded request/evidence path and internal consistency, not
+model or manufacturing accuracy. Fixture outputs and the evaluation ledger also
+demonstrate workflow behavior rather than accuracy.
 
 ## What is technically notable
 

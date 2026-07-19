@@ -19,9 +19,11 @@ credential-free synthetic mock flow, GPT-5.6 Responses API adapter, and web
 experience are runnable behind the same typed contract.
 
 - Codex owns architecture, implementation, tests, documentation, and commits.
-- The GPT-5.6 runtime adapter is implemented and mock-transport verified. The
-  canonical one-request live validation is not claimed until its sanitized
-  evidence record exists and passes the repository validator.
+- The GPT-5.6 runtime adapter is implemented and mock-transport verified. One
+  separately approved live request completed on 2026-07-19: the provider returned
+  success, deterministic policy produced an evidence-backed `fail`, and the
+  canonical sanitized record passes the repository validator as `SCHEMA
+  VERIFIED`.
 - Grok participates only after the working mock flow as an external red-team
   reviewer of public documentation and synthetic scenarios.
 - No application code is copied from prior RoboQC, Claude, or Grok work.
@@ -109,13 +111,13 @@ The default CLI and UI remain credential-free fixture flows. Installation and
 tests never make a live model call. The separately approved smoke uses a
 dedicated one-request runner.
 
-The sanitized evidence contract for that smoke is implemented. Until the runner
-is actually executed, no live-evidence file is committed or implied. It permits
-only a UTC timestamp, content-derived record/case IDs, provider and decision
-routing fields, model and workflow versions, and SOP/image fingerprints. It
-excludes raw case IDs, images, SOP bodies, model/assessment free text, response
-IDs, usage, and credentials. Exact replay is a byte-identical no-op; different
-evidence cannot replace the first atomically published record.
+The sanitized evidence contract is exercised by the committed canonical record
+in `evidence/live_validation_evidence.json`. It permits only a UTC timestamp,
+content-derived record/case IDs, provider and decision routing fields, model and
+workflow versions, and SOP/image fingerprints. It excludes raw case IDs, images,
+SOP bodies, model/assessment free text, response IDs, usage, and credentials.
+Exact replay is a byte-identical no-op; different evidence cannot replace the
+first atomically published record.
 
 At startup, the UI performs a read-only check of only
 `evidence/live_validation_evidence.json` under the repository root. It does not
@@ -129,7 +131,7 @@ of the Goal 2 artifact and commit provenance.
 The case fingerprint is pseudonymous routing evidence, not anonymization; real
 customer identifiers remain outside the MVP and must not be supplied.
 
-The dedicated CLI exposes the live path only through explicit confirmation:
+The dedicated CLI exposed the live path only through explicit confirmation:
 
 ```bash
 inspection-copilot-live-smoke \
@@ -137,7 +139,9 @@ inspection-copilot-live-smoke \
   --confirm-one-live-request
 ```
 
-This command requires `OPENAI_API_KEY` in the process environment and performs
+The canonical target is now occupied; **do not run this command again**. It is
+shown only to document the audited invocation. The command requires
+`OPENAI_API_KEY` in the process environment and performs
 at most one provider inspection for a built-in synthetic scenario. Before the
 provider is constructed, it atomically reserves the attempt and refuses an
 existing evidence file or reservation. Any typed provider failure is persisted
@@ -160,10 +164,14 @@ The returned assessment is not trusted directly. The deterministic policy layer
 revalidates evidence and SOP references; refusal, timeout, rate limiting,
 unavailability, or invalid structured output becomes a typed `needs_review`
 outcome. Mock-transport tests prove this SDK boundary without spending API
-credits. A real GPT-5.6 outcome is claimed only after the one-request runner
-creates `evidence/live_validation_evidence.json` and the UI reports `SCHEMA
-VERIFIED`. The synthetic fixture results and evaluation ledger are workflow
-proof, not measurements of model or manufacturing accuracy.
+credits. The one authorized request used alias `gpt-5.6`, resolved to
+`gpt-5.6-sol`, returned provider success, and produced an evidence-backed `fail`.
+The canonical sanitized record passes strict schema, fingerprint, and
+content-derived ID validation, and the UI reports `SCHEMA VERIFIED · SUCCESS ·
+FAIL`. This proves the bounded request/evidence path and internal consistency,
+not origin, model accuracy, or manufacturing readiness. The synthetic fixture
+results and evaluation ledger remain workflow proof rather than accuracy
+measurements.
 
 Run the deterministic policy-level evaluation:
 
@@ -209,6 +217,7 @@ pytest -q
 - [Architecture](docs/ARCHITECTURE.md)
 - [Evaluation ledger](docs/EVALUATION.md)
 - [Sanitized inspection ledger](evidence/offline_inspection_ledger.json)
+- [Sanitized one-request live evidence](evidence/live_validation_evidence.json)
 - [2:50 demo script](docs/DEMO_SCRIPT.md)
 - [Video production and YouTube runbook](docs/VIDEO_PRODUCTION.md)
 - [Submission checklist](docs/SUBMISSION_CHECKLIST.md)
