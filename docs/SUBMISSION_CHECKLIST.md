@@ -20,7 +20,10 @@ hardware integration, create another repository, or add unrelated features.
   renders the expected `NOT RUN` live-evidence state.
 - [x] Existing draft PR #1 has current scope/verification text and green GitHub
   Actions checks; no duplicate PR was created.
-- [x] Three-minute walkthrough in [DEMO_SCRIPT.md](DEMO_SCRIPT.md).
+- [x] 2:50 walkthrough in [DEMO_SCRIPT.md](DEMO_SCRIPT.md), leaving ten seconds
+  of margin under the three-minute limit.
+- [x] Recording setup, trust-state variants, YouTube metadata, and acceptance
+  checks in [VIDEO_PRODUCTION.md](VIDEO_PRODUCTION.md).
 - [x] Paste-ready English Devpost copy in [DEVPOST_DRAFT.md](DEVPOST_DRAFT.md),
   reconciled with the current official rules and explicit human-only fields.
 
@@ -42,8 +45,13 @@ hardware integration, create another repository, or add unrelated features.
 - [ ] Open the Streamlit app and confirm the live panel reports `SCHEMA VERIFIED`
   for the sanitized record. Keep raw model output, response IDs, usage, and
   credentials out of the repository.
-- [ ] Record a video under three minutes using only synthetic data and the
-  scripted trust-state explanation.
+- [ ] Record a public YouTube video of 3:00 or less using only synthetic data and
+  the scripted trust-state explanation. Include an English voiceover or English
+  translation, a clear working demo, concrete Codex workflow/decisions, and
+  GPT-5.6's integration and runtime role. Follow
+  [VIDEO_PRODUCTION.md](VIDEO_PRODUCTION.md).
+- [ ] Open the public YouTube URL while signed out and confirm that no secret,
+  customer data, response metadata, or `/feedback` ID is visible.
 - [ ] Run `/feedback` in the primary Codex session and enter its identifier
   directly in Devpost. Do not commit the identifier.
 - [ ] Add the final public repository and video links to Devpost, proofread the
@@ -59,4 +67,5 @@ hardware integration, create another repository, or add unrelated features.
 - Tuesday: buffer and final human submission only; no architectural work.
 
 If live validation cannot be completed safely, preserve the honest `NOT RUN`
-state. Never substitute fixture output or a hand-written file as live evidence.
+state and use that narration from the video runbook. Never substitute fixture
+output or a hand-written file as live evidence.

@@ -137,8 +137,10 @@ Mypy, GitHub Actions, and Codex.
 
 ## Submission assets still requiring a human
 
-- Record the audio walkthrough from [DEMO_SCRIPT.md](DEMO_SCRIPT.md), keep it
-  under three minutes, upload it publicly to YouTube, and enter the URL.
+- Record the audio walkthrough from [DEMO_SCRIPT.md](DEMO_SCRIPT.md) using the
+  setup, honest trust-state wording, and paste-ready YouTube metadata in
+  [VIDEO_PRODUCTION.md](VIDEO_PRODUCTION.md). Keep it at 3:00 or less, upload it
+  publicly to YouTube, verify the URL while signed out, and enter it above.
 - Run `/feedback` in the primary Codex build thread and enter that Session ID
   directly in the form.
 - Proofread the saved Devpost draft and perform the final submission before

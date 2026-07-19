@@ -94,6 +94,15 @@ secret access, a second API request, merge, deploy, or final submission.
   the official rules: Work and Productivity, public licensed repository, public
   YouTube demo under three minutes with audio, explicit Codex/GPT-5.6 coverage,
   and a private `/feedback` form field. No Devpost state was changed.
+- The current official Build Week FAQ was rechecked on 2026-07-19. The video
+  contract is a public YouTube demo of 3:00 or less with a working product,
+  English voiceover or translation, concrete Codex workflow/decisions, and a
+  meaningful explanation of GPT-5.6 integration and runtime behavior.
+- `docs/VIDEO_PRODUCTION.md` now provides a 2:45–2:50 shot plan, recording safety
+  guardrails, paste-ready YouTube metadata, acceptance checks, and separate
+  honest narration for `SCHEMA VERIFIED` and `NOT RUN`. The matching demo script
+  leaves ten seconds of deadline margin and no longer relies on generic tool
+  attribution.
 
 ## Verification
 
@@ -199,6 +208,13 @@ secret access, a second API request, merge, deploy, or final submission.
   preserves the pending live-evidence claim and leaves the YouTube URL and private
   `/feedback` field unfilled. Ruff, formatting, strict Mypy, all 110 tests, `pip
   check`, and `git diff --check` remain green without an API request.
+- Video-readiness gate: both installed offline scenarios were rehearsed and
+  returned the expected evidence-backed `fail` and four-reason `needs_review`.
+  A localhost browser smoke visibly confirmed the automatic `FAIL`, independent
+  `LIVE VALIDATION · NOT RUN`, and separate human-review form. Ruff lint and
+  format, strict Mypy, all 110 tests, `pip check`, and `git diff --check` pass.
+  No provider was constructed; neither the canonical evidence file nor its
+  reservation marker exists.
 
 ## Next steps
 
