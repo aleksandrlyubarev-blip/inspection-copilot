@@ -1,0 +1,32 @@
+{
+  "provider": "fixture-inspector-v1",
+  "total_cases": 2,
+  "matched_cases": 2,
+  "match_rate": 1.0,
+  "automatic_cases": 1,
+  "escalated_cases": 1,
+  "cases": [
+    {
+      "scenario": "bridge_fail",
+      "case_id": "synthetic-bridge-001",
+      "expected_decision": "fail",
+      "actual_decision": "fail",
+      "matched": true,
+      "review_reasons": []
+    },
+    {
+      "scenario": "ambiguous",
+      "case_id": "synthetic-ambiguous-001",
+      "expected_decision": "needs_review",
+      "actual_decision": "needs_review",
+      "matched": true,
+      "review_reasons": [
+        "model_requested_review",
+        "poor_image_quality",
+        "insufficient_evidence",
+        "low_confidence"
+      ]
+    }
+  ],
+  "disclaimer": "Deterministic repository-owned fixture workflow; not model-accuracy evidence."
+}

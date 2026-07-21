@@ -27,6 +27,10 @@ aggregate evidence trail.
 
 - One versioned SOP and repository-owned synthetic dataset.
 - Typed input, evidence, assessment, and result contracts.
+- Deterministic SOP/image fingerprints and versioned result provenance.
+- A bounded, sanitized, deterministic local inspection ledger for audit evidence.
+- A reserved, one-request live-smoke runner and no-clobber sanitized evidence contract.
+- A fixed-path, read-only live-evidence trust panel separate from offline and human records.
 - A deterministic offline provider for end-to-end demo and tests.
 - A GPT-5.6 Responses API provider behind the same interface.
 - A simple web UI that clearly separates model verdict, evidence, and human review.
@@ -54,6 +58,19 @@ aggregate evidence trail.
 6. Tests, lint, formatting, and strict type checking pass before public push.
 7. Grok receives only public docs and synthetic inputs; its findings are recorded
    separately and accepted changes are reimplemented in Codex with regression tests.
+8. Every result identifies the exact image and canonical SOP by SHA-256 and records
+   requested/effective model plus schema, prompt, and policy versions.
+9. The offline ledger stores only structured routing metadata and provenance;
+   exact replay is idempotent and committed evidence matches a fresh fixture build.
+10. A live smoke can persist only the strict sanitized record; naive timestamps,
+    tampered IDs, provider/result mismatch, and replacement of different evidence
+    are rejected before any claim of validation is made.
+11. The runner binds evidence to the actual provider outcome, refuses an existing
+    evidence path or reservation before provider construction, and never retries
+    a typed or uncertain provider failure.
+12. The UI reports missing live evidence as `not_run`, exposes only a strict
+    sanitized record as `verified`, and fails closed for every unsafe, invalid,
+    oversized, or unreadable artifact without changing offline or human state.
 
 ## Verification
 
@@ -65,6 +82,7 @@ aggregate evidence trail.
 
 ## Stop-lines
 
-- No live model request without a separately authorized, cost-bounded smoke.
+- No live model request without a separately authorized, cost-bounded smoke and
+  no second request without new approval.
 - No external reviewer receives secrets, real photos, or private SOPs.
 - No deployment or submission until local and browser gates pass.

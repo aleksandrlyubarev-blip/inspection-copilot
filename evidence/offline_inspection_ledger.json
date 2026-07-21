@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "entries": [
+    {
+      "entry_id": "86e856dc00a947ef629bc98b3bb36c87d35ae806f7abd7cfecef12f1a0a4a827",
+      "case_sha256": "048505a037638ebcd7679bd9401af00e161c41860ec40cfe7ba53f8b61645702",
+      "final_decision": "fail",
+      "evidence_complete": true,
+      "review_reasons": [],
+      "provenance": {
+        "schema_version": "1.0",
+        "sop_sha256": "641b713810fbc977077aa76f585794cdd66f2827f3a1ef9e4f26a81e3456bba2",
+        "image_sha256": "46276da8d0052df523e3af09b01cdfc7c1b42b2fa1cea4be4c580ec64d70bdca",
+        "requested_model": "fixture-inspector-v1",
+        "effective_model": "fixture-inspector-v1",
+        "prompt_version": "fixture-v1",
+        "policy_version": "evidence-policy-v1"
+      }
+    },
+    {
+      "entry_id": "907bcf568d3e9432c587b1151cc0f227f6631c7fc69c7a74807d5a1ea6484e81",
+      "case_sha256": "a1c088ad3182aee6227658d56c4738bcc3070adc39f603d9dc51fa65509c5cf5",
+      "final_decision": "needs_review",
+      "evidence_complete": false,
+      "review_reasons": [
+        "model_requested_review",
+        "poor_image_quality",
+        "insufficient_evidence",
+        "low_confidence"
+      ],
+      "provenance": {
+        "schema_version": "1.0",
+        "sop_sha256": "641b713810fbc977077aa76f585794cdd66f2827f3a1ef9e4f26a81e3456bba2",
+        "image_sha256": "2a78c9663133ce205f74cd0521e8095e982ea67ae900e578e1ba1253f918a4fb",
+        "requested_model": "fixture-inspector-v1",
+        "effective_model": "fixture-inspector-v1",
+        "prompt_version": "fixture-v1",
+        "policy_version": "evidence-policy-v1"
+      }
+    }
+  ]
+}

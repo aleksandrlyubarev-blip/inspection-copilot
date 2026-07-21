@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "record_id": "121810d71ec6c927da842846edc0abbc2241180fbb805c0c4d6184cf35d8397e",
+  "recorded_at": "2026-07-19T13:53:15Z",
+  "case_sha256": "048505a037638ebcd7679bd9401af00e161c41860ec40cfe7ba53f8b61645702",
+  "provider_status": "success",
+  "final_decision": "fail",
+  "evidence_complete": true,
+  "review_reasons": [],
+  "requested_model": "gpt-5.6",
+  "effective_model": "gpt-5.6-sol",
+  "result_schema_version": "1.0",
+  "prompt_version": "inspection-v1",
+  "policy_version": "evidence-policy-v1",
+  "sop_sha256": "641b713810fbc977077aa76f585794cdd66f2827f3a1ef9e4f26a81e3456bba2",
+  "image_sha256": "46276da8d0052df523e3af09b01cdfc7c1b42b2fa1cea4be4c580ec64d70bdca"
+}

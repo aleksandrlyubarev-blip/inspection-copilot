@@ -1,0 +1,6 @@
+{
+  "case_id": "synthetic-bridge-001",
+  "image_ref": "synthetic_bridge.png",
+  "product_type": "SMT PCB",
+  "context": "Repository-owned synthetic illustration for workflow testing; not model-accuracy evidence."
+}
