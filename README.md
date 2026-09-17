@@ -3,6 +3,13 @@
 Evidence-backed visual inspection for manufacturing quality teams, built for
 **OpenAI Build Week 2026 — Work & Productivity**.
 
+## System role
+
+This repo is the evidence-backed SOP inspection and fail-closed policy container of the Physical AI inspection system.
+System map: https://github.com/aleksandrlyubarev-blip/physical-ai-inspection-system
+Generated architecture: [./docs/litho/](./docs/litho/) (created by a successful Litho run).
+Product canon: [litho/context/PRODUCT.md](litho/context/PRODUCT.md).
+
 Inspection Copilot turns an image and a versioned SOP into a structured
 `pass`, `fail`, or `needs_review` decision. Every automatic verdict must carry
 observable evidence and a valid SOP rule reference. Ambiguity is escalated to a
@@ -228,3 +235,19 @@ pytest -q
 ## License
 
 MIT
+
+## Architecture docs
+
+[Litho runbook](litho/README.md) · [Product canon](litho/context/PRODUCT.md).
+Generated architecture is written to [docs/litho/](docs/litho/) after a successful run.
+No model-generated documentation is committed by this scaffold: the implementation environment has no `LITHO_LLM_API_KEY`.
+
+```bash
+cargo install deepwiki-rs --version 1.6.0 --locked
+# Export LITHO_LLM_API_KEY securely in your shell; never store it in Git.
+bash scripts/litho_generate.sh --check
+bash scripts/litho_generate.sh
+```
+
+The workflow uploads documentation artifacts on configured runs and skips generation when the key is absent.
+Review generated claims against the canon before committing Markdown; do not commit caches.
