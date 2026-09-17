@@ -237,3 +237,13 @@ request, merge, deploy, or final submission.
    saved Devpost draft using the frozen documentation and three-minute script.
 3. Capture the primary Codex `/feedback` ID privately. Stop before merge, deploy,
    or final Devpost submission pending explicit human approval.
+
+## 2026-09-17 — Litho documentation scaffold
+
+- Isolated `feat/litho-docs` checkout from main; product code and provider/policy contracts unchanged.
+- Added human-owned Physical AI canon, real Litho 1.6.0 config, source-only snapshot runner, README links and a secret-gated artifact workflow.
+- Real `deepwiki-rs --help` and `sync-knowledge` verified; all four canon files loaded in architecture/workflow/api categories.
+- No LLM generation: `LITHO_LLM_API_KEY` absent. No generated placeholders committed.
+- Verification: source/config dry-run; no-key skip; ShellCheck and actionlint; Ruff lint/format; Mypy; all 111 product tests passed.
+- Cross-repository integration, verdict normalization and a shared SHA-256 evidence pack remain documented gaps, not implemented features.
+- Next authorized use: set the documentation key outside Git and run `bash scripts/litho_generate.sh`; review generated claims before committing Markdown.

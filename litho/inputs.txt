@@ -1,0 +1,3 @@
+src/inspection_copilot
+streamlit_app.py
+pyproject.toml
